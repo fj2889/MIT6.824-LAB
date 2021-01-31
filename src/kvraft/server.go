@@ -39,9 +39,9 @@ type KVServer struct {
 	stateMachine    map[string]string
 	clientRequestID map[int64]int32
 
-	executedMsg   map[int]raft.ApplyMsg
-	lastExecuted  int
-	waitApplyCond *sync.Cond
+	executedMsg       map[int]raft.ApplyMsg
+	lastExecutedIndex int
+	waitApplyCond     *sync.Cond
 }
 
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
@@ -69,7 +69,7 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	// set a timer and wait command to be executed
 	getRequestTime := time.Now()
 	myTimer(&kv.mu, kv.waitApplyCond, kv.timeout)
-	for kv.lastExecuted < commandIndex && time.Now().Sub(getRequestTime) < kv.timeout {
+	for kv.lastExecutedIndex < commandIndex && time.Now().Sub(getRequestTime) < kv.timeout {
 		kv.waitApplyCond.Wait()
 	}
 	if time.Now().Sub(getRequestTime) >= kv.timeout {
@@ -141,7 +141,7 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// set a timer and wait command to be executed
 	getRequestTime := time.Now()
 	myTimer(&kv.mu, kv.waitApplyCond, kv.timeout)
-	for kv.lastExecuted < commandIndex && time.Now().Sub(getRequestTime) < kv.timeout {
+	for kv.lastExecutedIndex < commandIndex && time.Now().Sub(getRequestTime) < kv.timeout {
 		kv.waitApplyCond.Wait()
 	}
 	if time.Now().Sub(getRequestTime) >= kv.timeout {
@@ -228,7 +228,7 @@ func (kv *KVServer) updateStateMachine() {
 			kv.clientRequestID[command.ClientID] = command.RequestID
 		}
 		// wake up client-facing RPC handler
-		kv.lastExecuted = m.CommandIndex
+		kv.lastExecutedIndex = m.CommandIndex
 		kv.waitApplyCond.Broadcast()
 		if _, isOk := kv.executedMsg[m.CommandIndex]; isOk {
 			kv.executedMsg[m.CommandIndex] = m

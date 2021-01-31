@@ -1,5 +1,10 @@
 package shardmaster
 
+import (
+	"fmt"
+	"time"
+)
+
 //
 // Master shard server: assigns shards to replication groups.
 //
@@ -29,45 +34,71 @@ type Config struct {
 }
 
 const (
-	OK = "OK"
+	OK                  = "OK"
+	ErrWrongNum         = "ErrWrongNum"
+	ErrWrongLeader      = "ErrWrongLeader"
+	ErrDuplicateRequest = "ErrDuplicateRequest"
+	ErrOpNotExecuted    = "ErrOpNotExecuted"
 )
 
 type Err string
 
 type JoinArgs struct {
-	Servers map[int][]string // new GID -> servers mappings
+	Servers   map[int][]string // new GID -> servers mappings
+	ClientID  int64
+	RequestID int32
 }
 
 type JoinReply struct {
-	WrongLeader bool
-	Err         Err
+	Err Err
 }
 
 type LeaveArgs struct {
-	GIDs []int
+	GIDs      []int
+	ClientID  int64
+	RequestID int32
 }
 
 type LeaveReply struct {
-	WrongLeader bool
-	Err         Err
+	Err Err
 }
 
 type MoveArgs struct {
-	Shard int
-	GID   int
+	Shard     int
+	GID       int
+	ClientID  int64
+	RequestID int32
 }
 
 type MoveReply struct {
-	WrongLeader bool
-	Err         Err
+	Err Err
 }
 
 type QueryArgs struct {
-	Num int // desired config number
+	Num       int // desired config number
+	ClientID  int64
+	RequestID int32
 }
 
 type QueryReply struct {
-	WrongLeader bool
-	Err         Err
-	Config      Config
+	Err    Err
+	Config Config
+}
+
+const (
+	JoinOp  = "Join"
+	LeaveOp = "Leave"
+	MoveOp  = "Move"
+	QueryOp = "Query"
+)
+
+const Debug = 0
+
+func SMPrintf(sm *ShardMaster, format string, a ...interface{}) {
+	if Debug > 0 {
+		format = "%v: [ShardMaster %v] " + format + "\n"
+		a = append([]interface{}{time.Now().Sub(sm.startTime).Milliseconds(), sm.me}, a...)
+		fmt.Printf(format, a...)
+	}
+	return
 }

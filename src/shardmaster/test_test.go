@@ -57,6 +57,7 @@ func check_same_config(t *testing.T, c1 Config, c2 Config) {
 		t.Fatalf("Num wrong")
 	}
 	if c1.Shards != c2.Shards {
+		fmt.Printf("c1 = %v, c2 = %v\n", c1, c2)
 		t.Fatalf("Shards wrong")
 	}
 	if len(c1.Groups) != len(c2.Groups) {
@@ -123,11 +124,13 @@ func TestBasic(t *testing.T) {
 	fmt.Printf("Test: Historical queries ...\n")
 
 	for s := 0; s < nservers; s++ {
+		//fmt.Printf("shutdown server %v\n", s)
 		cfg.ShutdownServer(s)
 		for i := 0; i < len(cfa); i++ {
 			c := ck.Query(cfa[i].Num)
 			check_same_config(t, c, cfa[i])
 		}
+		//fmt.Printf("start server %v\n", s)
 		cfg.StartServer(s)
 		cfg.ConnectAll()
 	}

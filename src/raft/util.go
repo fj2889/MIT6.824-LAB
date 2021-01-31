@@ -9,7 +9,7 @@ import (
 // Debugging
 const (
 	Debug     = 0
-	PrintRaft = false
+	PrintRaft = 0
 )
 
 func Min(x int, y int) int {
@@ -36,7 +36,7 @@ func DPrintf(format string, a ...interface{}) (n int, err error) {
 }
 
 func RaftPrint(rf *Raft, format string, a ...interface{}) {
-	if PrintRaft {
+	if PrintRaft > 0 {
 		format = "%v: [raft %v (%v) at Term %v] " + format + "\n"
 		a = append([]interface{}{time.Now().Sub(rf.allBegin).Milliseconds(), rf.me, rf.state, rf.currentTerm}, a...)
 		fmt.Printf(format, a...)

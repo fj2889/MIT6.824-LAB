@@ -4,7 +4,10 @@ package shardmaster
 // Shardmaster clerk.
 //
 
-import "../labrpc"
+import (
+	"../labrpc"
+	"sync/atomic"
+)
 import "time"
 import "crypto/rand"
 import "math/big"
@@ -12,6 +15,9 @@ import "math/big"
 type Clerk struct {
 	servers []*labrpc.ClientEnd
 	// Your data here.
+	uuid          int64
+	requestId     int32
+	currentLeader int
 }
 
 func nrand() int64 {
@@ -24,78 +30,136 @@ func nrand() int64 {
 func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 	ck := new(Clerk)
 	ck.servers = servers
-	// Your code here.
+	// You'll have to add code here.
+	ck.uuid = nrand()
+	ck.requestId = 0
+	ck.currentLeader = 0
 	return ck
 }
 
 func (ck *Clerk) Query(num int) Config {
-	args := &QueryArgs{}
 	// Your code here.
-	args.Num = num
+	atomic.AddInt32(&ck.requestId, 1)
+	args := QueryArgs{
+		Num: num,
+		ClientID:  ck.uuid,
+		RequestID: ck.requestId,
+	}
+	count := 0
+	var result Config
 	for {
-		// try each known server.
-		for _, srv := range ck.servers {
-			var reply QueryReply
-			ok := srv.Call("ShardMaster.Query", args, &reply)
-			if ok && reply.WrongLeader == false {
-				return reply.Config
-			}
+		count++
+		if count%len(ck.servers) == 0 {
+			time.Sleep(100 * time.Millisecond)
 		}
-		time.Sleep(100 * time.Millisecond)
+		var reply QueryReply
+		ok := ck.servers[ck.currentLeader].Call("ShardMaster.Query", &args, &reply)
+		if !ok {
+			ck.currentLeader = (ck.currentLeader + 1) % len(ck.servers)
+			continue
+		}
+		switch reply.Err {
+		case OK:
+			result = reply.Config
+		case ErrWrongNum, ErrDuplicateRequest:
+		case ErrWrongLeader, ErrOpNotExecuted:
+			ck.currentLeader = (ck.currentLeader + 1) % len(ck.servers)
+			continue
+		}
+		return result
 	}
 }
 
 func (ck *Clerk) Join(servers map[int][]string) {
-	args := &JoinArgs{}
 	// Your code here.
-	args.Servers = servers
-
+	atomic.AddInt32(&ck.requestId, 1)
+	args := JoinArgs{
+		Servers: servers,
+		ClientID:  ck.uuid,
+		RequestID: ck.requestId,
+	}
+	count := 0
 	for {
-		// try each known server.
-		for _, srv := range ck.servers {
-			var reply JoinReply
-			ok := srv.Call("ShardMaster.Join", args, &reply)
-			if ok && reply.WrongLeader == false {
-				return
-			}
+		count++
+		if count%len(ck.servers) == 0 {
+			time.Sleep(100 * time.Millisecond)
 		}
-		time.Sleep(100 * time.Millisecond)
+		var reply QueryReply
+		ok := ck.servers[ck.currentLeader].Call("ShardMaster.Join", &args, &reply)
+		if !ok {
+			ck.currentLeader = (ck.currentLeader + 1) % len(ck.servers)
+			continue
+		}
+		switch reply.Err {
+		case OK:
+		case ErrDuplicateRequest:
+		case ErrWrongLeader, ErrOpNotExecuted:
+			ck.currentLeader = (ck.currentLeader + 1) % len(ck.servers)
+			continue
+		}
+		return
 	}
 }
 
 func (ck *Clerk) Leave(gids []int) {
-	args := &LeaveArgs{}
 	// Your code here.
-	args.GIDs = gids
-
+	atomic.AddInt32(&ck.requestId, 1)
+	args := LeaveArgs{
+		GIDs: gids,
+		ClientID:  ck.uuid,
+		RequestID: ck.requestId,
+	}
+	count := 0
 	for {
-		// try each known server.
-		for _, srv := range ck.servers {
-			var reply LeaveReply
-			ok := srv.Call("ShardMaster.Leave", args, &reply)
-			if ok && reply.WrongLeader == false {
-				return
-			}
+		count++
+		if count%len(ck.servers) == 0 {
+			time.Sleep(100 * time.Millisecond)
 		}
-		time.Sleep(100 * time.Millisecond)
+		var reply QueryReply
+		ok := ck.servers[ck.currentLeader].Call("ShardMaster.Leave", &args, &reply)
+		if !ok {
+			ck.currentLeader = (ck.currentLeader + 1) % len(ck.servers)
+			continue
+		}
+		switch reply.Err {
+		case OK:
+		case ErrDuplicateRequest:
+		case ErrWrongLeader, ErrOpNotExecuted:
+			ck.currentLeader = (ck.currentLeader + 1) % len(ck.servers)
+			continue
+		}
+		return
 	}
 }
 
 func (ck *Clerk) Move(shard int, gid int) {
-	args := &MoveArgs{}
 	// Your code here.
-	args.Shard = shard
-	args.GID = gid
-
+	atomic.AddInt32(&ck.requestId, 1)
+	args := MoveArgs{
+		Shard: shard,
+		GID:   gid,
+		ClientID:  ck.uuid,
+		RequestID: ck.requestId,
+	}
+	count := 0
 	for {
-		// try each known server.
-		for _, srv := range ck.servers {
-			var reply MoveReply
-			ok := srv.Call("ShardMaster.Move", args, &reply)
-			if ok && reply.WrongLeader == false {
-				return
-			}
+		count++
+		if count%len(ck.servers) == 0 {
+			time.Sleep(100 * time.Millisecond)
 		}
-		time.Sleep(100 * time.Millisecond)
+		var reply QueryReply
+		ok := ck.servers[ck.currentLeader].Call("ShardMaster.Move", &args, &reply)
+		if !ok {
+			ck.currentLeader = (ck.currentLeader + 1) % len(ck.servers)
+			continue
+		}
+		switch reply.Err {
+		case OK:
+		case ErrDuplicateRequest:
+		case ErrWrongLeader, ErrOpNotExecuted:
+			ck.currentLeader = (ck.currentLeader + 1) % len(ck.servers)
+			continue
+		}
+		return
 	}
 }

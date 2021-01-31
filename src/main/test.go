@@ -39,8 +39,8 @@ func main() {
 	//if err != nil {
 	//	fmt.Println(err)
 	//}
-	//x := make(map[int]string)
-	portion := 2.0/3
-	x := int(float64(1000)*portion)
-	fmt.Println(x)
+	x:= [2]int{1, 2}
+	y := x
+	y[0] = 3
+	fmt.Println(x, y)
 }

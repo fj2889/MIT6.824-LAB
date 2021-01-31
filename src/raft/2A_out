@@ -1,0 +1,259 @@
+Test (2A): initial election ...
+350: [raft 0 (follower) at Term 0] election timeout
+352: [raft 0 (candidate) at Term 1] start a new election
+353: [raft 0 (candidate) at Term 1] request vote from peer 1
+353: [raft 0 (candidate) at Term 1] request vote from peer 2
+354: [raft 2 (follower) at Term 1] vote for peer 0
+355: [raft 1 (follower) at Term 1] vote for peer 0
+356: [raft 0 (candidate) at Term 1] become leader
+356: [raft 0 (leader) at Term 1] send heartbeat to all others
+356: [raft 0 (leader) at Term 1] get old reply or not be candidate after get reply from server 1
+359: [raft 0 (leader) at Term 1] heartbeat reach majority server
+456: [raft 0 (leader) at Term 1] send heartbeat to all others
+460: [raft 0 (leader) at Term 1] heartbeat reach majority server
+560: [raft 0 (leader) at Term 1] send heartbeat to all others
+564: [raft 0 (leader) at Term 1] heartbeat reach majority server
+665: [raft 0 (leader) at Term 1] send heartbeat to all others
+669: [raft 0 (leader) at Term 1] heartbeat reach majority server
+771: [raft 0 (leader) at Term 1] send heartbeat to all others
+774: [raft 0 (leader) at Term 1] heartbeat reach majority server
+876: [raft 0 (leader) at Term 1] send heartbeat to all others
+879: [raft 0 (leader) at Term 1] heartbeat reach majority server
+981: [raft 0 (leader) at Term 1] send heartbeat to all others
+985: [raft 0 (leader) at Term 1] heartbeat reach majority server
+1086: [raft 0 (leader) at Term 1] send heartbeat to all others
+1090: [raft 0 (leader) at Term 1] heartbeat reach majority server
+1190: [raft 0 (leader) at Term 1] send heartbeat to all others
+1193: [raft 0 (leader) at Term 1] heartbeat reach majority server
+1295: [raft 0 (leader) at Term 1] send heartbeat to all others
+1298: [raft 0 (leader) at Term 1] heartbeat reach majority server
+1400: [raft 0 (leader) at Term 1] send heartbeat to all others
+1403: [raft 0 (leader) at Term 1] heartbeat reach majority server
+1505: [raft 0 (leader) at Term 1] send heartbeat to all others
+1508: [raft 0 (leader) at Term 1] heartbeat reach majority server
+1605: [raft 0 (leader) at Term 1] send heartbeat to all others
+1609: [raft 0 (leader) at Term 1] heartbeat reach majority server
+1710: [raft 0 (leader) at Term 1] send heartbeat to all others
+1714: [raft 0 (leader) at Term 1] heartbeat reach majority server
+1816: [raft 0 (leader) at Term 1] send heartbeat to all others
+1819: [raft 0 (leader) at Term 1] heartbeat reach majority server
+1919: [raft 0 (leader) at Term 1] send heartbeat to all others
+1923: [raft 0 (leader) at Term 1] heartbeat reach majority server
+2024: [raft 0 (leader) at Term 1] send heartbeat to all others
+2028: [raft 0 (leader) at Term 1] heartbeat reach majority server
+2129: [raft 0 (leader) at Term 1] send heartbeat to all others
+2133: [raft 0 (leader) at Term 1] heartbeat reach majority server
+2235: [raft 0 (leader) at Term 1] send heartbeat to all others
+2238: [raft 0 (leader) at Term 1] heartbeat reach majority server
+2339: [raft 0 (leader) at Term 1] send heartbeat to all others
+2341: [raft 0 (leader) at Term 1] heartbeat reach majority server
+2443: [raft 0 (leader) at Term 1] send heartbeat to all others
+2446: [raft 0 (leader) at Term 1] heartbeat reach majority server
+2546: [raft 0 (leader) at Term 1] send heartbeat to all others
+2550: [raft 0 (leader) at Term 1] heartbeat reach majority server
+2648: [raft 0 (leader) at Term 1] send heartbeat to all others
+2652: [raft 0 (leader) at Term 1] heartbeat reach majority server
+2754: [raft 0 (leader) at Term 1] send heartbeat to all others
+2757: [raft 0 (leader) at Term 1] heartbeat reach majority server
+2857: [raft 0 (leader) at Term 1] send heartbeat to all others
+2860: [raft 0 (leader) at Term 1] heartbeat reach majority server
+2960: [raft 0 (leader) at Term 1] send heartbeat to all others
+2964: [raft 0 (leader) at Term 1] heartbeat reach majority server
+3060: [raft 0 (leader) at Term 1] send heartbeat to all others
+3064: [raft 0 (leader) at Term 1] heartbeat reach majority server
+  ... Passed --   3.1  3   56   16466    0
+Test (2A): election after network failure ...
+3166: [raft 0 (leader) at Term 1] get quit signal
+301: [raft 2 (follower) at Term 0] election timeout
+302: [raft 0 (follower) at Term 0] election timeout
+302: [raft 2 (candidate) at Term 1] start a new election
+303: [raft 0 (candidate) at Term 1] start a new election
+302: [raft 2 (candidate) at Term 1] request vote from peer 0
+304: [raft 0 (candidate) at Term 1] request vote from peer 1
+302: [raft 2 (candidate) at Term 1] request vote from peer 1
+304: [raft 0 (candidate) at Term 1] request vote from peer 2
+305: [raft 1 (follower) at Term 1] vote for peer 0
+307: [raft 0 (candidate) at Term 1] become leader
+307: [raft 0 (leader) at Term 1] send heartbeat to all others
+306: [raft 2 (candidate) at Term 1] do not get enough votes or election timeout
+309: [raft 0 (leader) at Term 1] heartbeat reach majority server
+3428: [raft 2 (follower) at Term 1] election timeout
+3428: [raft 2 (candidate) at Term 1] get quit signal
+3431: [raft 1 (follower) at Term 1] election timeout
+3431: [raft 1 (candidate) at Term 1] get quit signal
+409: [raft 0 (leader) at Term 1] send heartbeat to all others
+413: [raft 0 (leader) at Term 1] heartbeat reach majority server
+Test (2A): disconnect leader 0
+510: [raft 0 (leader) at Term 1] send heartbeat to all others
+611: [raft 0 (leader) at Term 1] leader do not get majority reply
+612: [raft 0 (leader) at Term 1] send heartbeat to all others
+712: [raft 0 (leader) at Term 1] leader do not get majority reply
+712: [raft 0 (leader) at Term 1] send heartbeat to all others
+746: [raft 2 (follower) at Term 1] election timeout
+747: [raft 2 (candidate) at Term 2] start a new election
+747: [raft 2 (candidate) at Term 2] request vote from peer 0
+747: [raft 2 (candidate) at Term 2] request vote from peer 1
+749: [raft 1 (follower) at Term 2] vote for peer 2
+748: [raft 2 (candidate) at Term 2] become leader
+748: [raft 2 (leader) at Term 2] send heartbeat to all others
+750: [raft 2 (leader) at Term 2] heartbeat reach majority server
+817: [raft 0 (leader) at Term 1] leader do not get majority reply
+817: [raft 0 (leader) at Term 1] send heartbeat to all others
+853: [raft 2 (leader) at Term 2] send heartbeat to all others
+856: [raft 2 (leader) at Term 2] heartbeat reach majority server
+919: [raft 0 (leader) at Term 1] leader do not get majority reply
+919: [raft 0 (leader) at Term 1] send heartbeat to all others
+958: [raft 2 (leader) at Term 2] send heartbeat to all others
+961: [raft 2 (leader) at Term 2] heartbeat reach majority server
+Test (2A): connect prevoius leader 0
+1024: [raft 0 (leader) at Term 1] leader do not get majority reply
+1024: [raft 0 (leader) at Term 1] send heartbeat to all others
+1028: [raft 0 (leader) at Term 1] (AE) get a larger term 2 from peer 1
+1028: [raft 0 (follower) at Term 2] (AE) get old reply or not be leader after get reply from server 2
+1028: [raft 0 (follower) at Term 2] not be a leader after send heartbeat to all others
+1060: [raft 2 (leader) at Term 2] send heartbeat to all others
+1063: [raft 2 (leader) at Term 2] heartbeat reach majority server
+1162: [raft 2 (leader) at Term 2] send heartbeat to all others
+1166: [raft 2 (leader) at Term 2] heartbeat reach majority server
+1264: [raft 2 (leader) at Term 2] send heartbeat to all others
+1267: [raft 2 (leader) at Term 2] heartbeat reach majority server
+1367: [raft 2 (leader) at Term 2] send heartbeat to all others
+1371: [raft 2 (leader) at Term 2] heartbeat reach majority server
+1468: [raft 2 (leader) at Term 2] send heartbeat to all others
+1472: [raft 2 (leader) at Term 2] heartbeat reach majority server
+Test (2A): disconnect leader 2
+Test (2A): disconnect server 0
+1568: [raft 2 (leader) at Term 2] send heartbeat to all others
+1673: [raft 2 (leader) at Term 2] leader do not get majority reply
+1674: [raft 2 (leader) at Term 2] send heartbeat to all others
+1775: [raft 2 (leader) at Term 2] leader do not get majority reply
+1776: [raft 2 (leader) at Term 2] send heartbeat to all others
+1793: [raft 0 (follower) at Term 2] election timeout
+1794: [raft 0 (candidate) at Term 3] start a new election
+1794: [raft 0 (candidate) at Term 3] request vote from peer 1
+1794: [raft 0 (candidate) at Term 3] request vote from peer 2
+1821: [raft 1 (follower) at Term 2] election timeout
+1822: [raft 1 (candidate) at Term 3] start a new election
+1822: [raft 1 (candidate) at Term 3] request vote from peer 0
+1823: [raft 1 (candidate) at Term 3] request vote from peer 2
+1881: [raft 2 (leader) at Term 2] leader do not get majority reply
+1881: [raft 2 (leader) at Term 2] send heartbeat to all others
+1985: [raft 2 (leader) at Term 2] leader do not get majority reply
+1985: [raft 2 (leader) at Term 2] send heartbeat to all others
+2086: [raft 0 (candidate) at Term 3] do not get enough votes or election timeout
+2087: [raft 0 (candidate) at Term 4] start a new election
+2087: [raft 0 (candidate) at Term 4] request vote from peer 1
+2086: [raft 2 (leader) at Term 2] leader do not get majority reply
+2087: [raft 0 (candidate) at Term 4] request vote from peer 2
+2086: [raft 2 (leader) at Term 2] send heartbeat to all others
+2094: [raft 1 (candidate) at Term 3] do not get enough votes or election timeout
+2095: [raft 1 (candidate) at Term 4] start a new election
+2095: [raft 1 (candidate) at Term 4] request vote from peer 0
+2096: [raft 1 (candidate) at Term 4] request vote from peer 2
+2188: [raft 2 (leader) at Term 2] leader do not get majority reply
+2188: [raft 2 (leader) at Term 2] send heartbeat to all others
+2292: [raft 2 (leader) at Term 2] leader do not get majority reply
+2292: [raft 2 (leader) at Term 2] send heartbeat to all others
+2397: [raft 2 (leader) at Term 2] leader do not get majority reply
+2397: [raft 2 (leader) at Term 2] send heartbeat to all others
+2399: [raft 1 (candidate) at Term 4] do not get enough votes or election timeout
+2400: [raft 1 (candidate) at Term 5] start a new election
+2400: [raft 1 (candidate) at Term 5] request vote from peer 0
+2401: [raft 1 (candidate) at Term 5] request vote from peer 2
+2427: [raft 0 (candidate) at Term 4] do not get enough votes or election timeout
+2428: [raft 0 (candidate) at Term 5] start a new election
+2428: [raft 0 (candidate) at Term 5] request vote from peer 1
+2428: [raft 0 (candidate) at Term 5] request vote from peer 2
+2500: [raft 2 (leader) at Term 2] leader do not get majority reply
+2500: [raft 2 (leader) at Term 2] send heartbeat to all others
+2603: [raft 2 (leader) at Term 2] leader do not get majority reply
+2603: [raft 2 (leader) at Term 2] send heartbeat to all others
+2706: [raft 2 (leader) at Term 2] leader do not get majority reply
+2706: [raft 2 (leader) at Term 2] send heartbeat to all others
+2732: [raft 0 (candidate) at Term 5] do not get enough votes or election timeout
+2733: [raft 0 (candidate) at Term 6] start a new election
+2733: [raft 0 (candidate) at Term 6] request vote from peer 1
+2733: [raft 0 (candidate) at Term 6] request vote from peer 2
+2772: [raft 1 (candidate) at Term 5] do not get enough votes or election timeout
+2772: [raft 1 (candidate) at Term 6] start a new election
+2773: [raft 1 (candidate) at Term 6] request vote from peer 0
+2773: [raft 1 (candidate) at Term 6] request vote from peer 2
+2809: [raft 2 (leader) at Term 2] leader do not get majority reply
+2809: [raft 2 (leader) at Term 2] send heartbeat to all others
+2910: [raft 2 (leader) at Term 2] leader do not get majority reply
+2911: [raft 2 (leader) at Term 2] send heartbeat to all others
+3012: [raft 2 (leader) at Term 2] leader do not get majority reply
+3012: [raft 2 (leader) at Term 2] send heartbeat to all others
+3072: [raft 1 (candidate) at Term 6] do not get enough votes or election timeout
+3072: [raft 1 (candidate) at Term 7] start a new election
+3073: [raft 1 (candidate) at Term 7] request vote from peer 0
+3073: [raft 1 (candidate) at Term 7] request vote from peer 2
+3103: [raft 0 (candidate) at Term 6] do not get enough votes or election timeout
+3103: [raft 0 (candidate) at Term 7] start a new election
+3104: [raft 0 (candidate) at Term 7] request vote from peer 1
+3104: [raft 0 (candidate) at Term 7] request vote from peer 2
+3112: [raft 2 (leader) at Term 2] leader do not get majority reply
+3112: [raft 2 (leader) at Term 2] send heartbeat to all others
+3217: [raft 2 (leader) at Term 2] leader do not get majority reply
+3217: [raft 2 (leader) at Term 2] send heartbeat to all others
+3318: [raft 2 (leader) at Term 2] leader do not get majority reply
+3318: [raft 2 (leader) at Term 2] send heartbeat to all others
+3374: [raft 1 (candidate) at Term 7] do not get enough votes or election timeout
+3374: [raft 1 (candidate) at Term 8] start a new election
+3374: [raft 1 (candidate) at Term 8] request vote from peer 0
+3375: [raft 1 (candidate) at Term 8] request vote from peer 2
+3415: [raft 0 (candidate) at Term 7] do not get enough votes or election timeout
+3416: [raft 0 (candidate) at Term 8] start a new election
+3416: [raft 0 (candidate) at Term 8] request vote from peer 1
+3416: [raft 0 (candidate) at Term 8] request vote from peer 2
+3419: [raft 2 (leader) at Term 2] leader do not get majority reply
+3419: [raft 2 (leader) at Term 2] send heartbeat to all others
+3524: [raft 2 (leader) at Term 2] leader do not get majority reply
+3524: [raft 2 (leader) at Term 2] send heartbeat to all others
+Test (2A): connect server 0
+3630: [raft 2 (leader) at Term 2] leader do not get majority reply
+3630: [raft 1 (candidate) at Term 8] do not get enough votes or election timeout
+3630: [raft 2 (leader) at Term 2] send heartbeat to all others
+3631: [raft 1 (candidate) at Term 9] start a new election
+3632: [raft 1 (candidate) at Term 9] request vote from peer 0
+3632: [raft 1 (candidate) at Term 9] request vote from peer 2
+3634: [raft 0 (follower) at Term 9] vote for peer 1
+3634: [raft 1 (candidate) at Term 9] become leader
+3635: [raft 1 (leader) at Term 9] send heartbeat to all others
+3637: [raft 1 (leader) at Term 9] heartbeat reach majority server
+3735: [raft 1 (leader) at Term 9] send heartbeat to all others
+3735: [raft 2 (leader) at Term 2] leader do not get majority reply
+3735: [raft 2 (leader) at Term 2] send heartbeat to all others
+3739: [raft 1 (leader) at Term 9] heartbeat reach majority server
+3811: [raft 0 (follower) at Term 9] not be a candidate
+3841: [raft 1 (leader) at Term 9] send heartbeat to all others
+3840: [raft 2 (leader) at Term 2] leader do not get majority reply
+3840: [raft 2 (leader) at Term 2] send heartbeat to all others
+3844: [raft 1 (leader) at Term 9] heartbeat reach majority server
+3943: [raft 1 (leader) at Term 9] send heartbeat to all others
+3942: [raft 2 (leader) at Term 2] leader do not get majority reply
+3943: [raft 2 (leader) at Term 2] send heartbeat to all others
+3947: [raft 1 (leader) at Term 9] heartbeat reach majority server
+4048: [raft 1 (leader) at Term 9] send heartbeat to all others
+4047: [raft 2 (leader) at Term 2] leader do not get majority reply
+4048: [raft 2 (leader) at Term 2] send heartbeat to all others
+4052: [raft 1 (leader) at Term 9] heartbeat reach majority server
+Test (2A): connect prevoius leader 2
+4152: [raft 1 (leader) at Term 9] send heartbeat to all others
+4151: [raft 2 (leader) at Term 2] leader do not get majority reply
+4151: [raft 2 (leader) at Term 2] send heartbeat to all others
+4156: [raft 1 (leader) at Term 9] heartbeat reach majority server
+4156: [raft 2 (follower) at Term 9] (AE) get old reply or not be leader after get reply from server 0
+4156: [raft 2 (follower) at Term 9] not be a leader after send heartbeat to all others
+4156: [raft 2 (follower) at Term 9] (AE) get old reply or not be leader after get reply from server 1
+4253: [raft 1 (leader) at Term 9] send heartbeat to all others
+4257: [raft 1 (leader) at Term 9] heartbeat reach majority server
+4358: [raft 1 (leader) at Term 9] send heartbeat to all others
+4362: [raft 1 (leader) at Term 9] heartbeat reach majority server
+4459: [raft 1 (leader) at Term 9] send heartbeat to all others
+4462: [raft 1 (leader) at Term 9] heartbeat reach majority server
+4559: [raft 1 (leader) at Term 9] send heartbeat to all others
+  ... Passed --   4.6  3  136   27750    0
+4562: [raft 1 (leader) at Term 9] heartbeat reach majority server
+PASS
+ok  	_/Users/fujie/go/6.824/src/raft	8.311s

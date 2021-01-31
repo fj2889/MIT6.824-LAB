@@ -23,7 +23,38 @@ type ExampleReply struct {
 }
 
 // Add your RPC definitions here.
+type TaskType int
 
+const (
+	TaskMap TaskType = iota
+	TaskReduce
+	TaskWait
+	TaskEnd
+)
+
+func (this TaskType) String() string {
+	switch this {
+	case TaskMap:
+		return "map_task"
+	case TaskReduce:
+		return "reduce_task"
+	case TaskWait:
+		return "wait_task"
+	case TaskEnd:
+		return "task_done"
+	default:
+		return "unknown_task"
+	}
+}
+
+type TaskInfo struct {
+	Filename    string
+	MapIndex    int
+	ReduceIndex int
+	NFile       int // reduce task need
+	NReduce     int
+	State       TaskType
+}
 
 // Cook up a unique-ish UNIX-domain socket name
 // in /var/tmp, for the master.

@@ -3,26 +3,23 @@ package kvraft
 import (
 	"../labgob"
 	"../labrpc"
-	"log"
 	"../raft"
+	"bytes"
+	"fmt"
 	"sync"
 	"sync/atomic"
+	"time"
 )
-
-const Debug = 0
-
-func DPrintf(format string, a ...interface{}) (n int, err error) {
-	if Debug > 0 {
-		log.Printf(format, a...)
-	}
-	return
-}
-
 
 type Op struct {
 	// Your definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
+	Key       string
+	Value     string
+	Operation string
+	ClientID  int64
+	RequestID int32
 }
 
 type KVServer struct {
@@ -32,18 +29,149 @@ type KVServer struct {
 	applyCh chan raft.ApplyMsg
 	dead    int32 // set by Kill()
 
-	maxraftstate int // snapshot if log grows this big
+	maxraftstate int             // snapshot if log grows this big
+	persister    *raft.Persister // used to read snapshot and raft state size, do not be used to persist
 
 	// Your definitions here.
+	startTime time.Time
+	timeout   time.Duration
+
+	stateMachine    map[string]string
+	clientRequestID map[int64]int32
+
+	executedMsg   map[int]raft.ApplyMsg
+	lastExecuted  int
+	waitApplyCond *sync.Cond
 }
 
-
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
-	// Your code here.
+	// get do not need check duplicate
+	// send the log to raft
+	command := Op{
+		Key:       args.Key,
+		Operation: GetOp,
+		ClientID:  args.ClientID,
+		RequestID: args.RequestID,
+	}
+	commandIndex, term, isLeader := kv.rf.Start(command) // cannot hold kv mutex!!!
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+	KVPrintf(kv, "get a client-%v request-%v (GET), key-%v, logIndex-%v",
+		args.ClientID%10000, args.RequestID, args.Key, commandIndex)
+
+	kv.mu.Lock()
+	defer kv.mu.Unlock()
+	kv.executedMsg[commandIndex] = raft.ApplyMsg{}
+	defer delete(kv.executedMsg, commandIndex)
+
+	// set a timer and wait command to be executed
+	getRequestTime := time.Now()
+	myTimer(&kv.mu, kv.waitApplyCond, kv.timeout)
+	for kv.lastExecuted < commandIndex && time.Now().Sub(getRequestTime) < kv.timeout {
+		kv.waitApplyCond.Wait()
+	}
+	if time.Now().Sub(getRequestTime) >= kv.timeout {
+		reply.Err = ErrOpNotExecuted
+		KVPrintf(kv, "reply the client-%v request-%v (GET) timeout: logIndex-%v, key-%v",
+			args.ClientID%10000, args.RequestID, commandIndex, args.Key)
+		return
+	}
+
+	// check applied command， should compare term!!!
+	executedMsg := kv.executedMsg[commandIndex]
+	if executedMsg.CommandTerm != term {
+		reply.Err = ErrOpNotExecuted
+		KVPrintf(kv, "reply the client-%v request-%v (GET) ErrOpNotExecuted: logIndex-%v, key-%v",
+			args.ClientID%10000, args.RequestID, commandIndex, args.Key)
+		return
+	}
+
+	kv.getValue(args, reply)
+	KVPrintf(kv, "reply the client-%v request-%v (GET) success: logIndex-%v, key-%v, value-%v",
+		args.ClientID%10000, args.RequestID, commandIndex, args.Key, reply.Value)
+	return
+}
+
+func (kv *KVServer) getValue(args *GetArgs, reply *GetReply) {
+	// get value, already have lock
+	value, isOk := kv.stateMachine[args.Key]
+	if isOk {
+		reply.Value = value
+		reply.Err = OK
+	} else {
+		reply.Err = ErrNoKey
+	}
 }
 
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
-	// Your code here.
+	// check duplicate
+	kv.mu.Lock()
+	if currentRequestID, ok := kv.clientRequestID[args.ClientID]; ok && currentRequestID >= args.RequestID {
+		reply.Err = ErrDuplicateRequest
+		KVPrintf(kv, "reply the client-%v request-%v (%v): key-%v, value-%v, duplicate command",
+			args.ClientID%10000, args.RequestID, args.Op, args.Key, args.Value)
+		kv.mu.Unlock()
+		return
+	}
+	kv.mu.Unlock()
+
+	// send the log to raft
+	command := Op{
+		Key:       args.Key,
+		Value:     args.Value,
+		Operation: args.Op,
+		ClientID:  args.ClientID,
+		RequestID: args.RequestID,
+	}
+	commandIndex, term, isLeader := kv.rf.Start(command)
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+	KVPrintf(kv, "get a client-%v request-%v (%v), logIndex-%v, key-%v, value-%v",
+		args.ClientID%10000, args.RequestID, args.Op, commandIndex, args.Key, args.Value)
+
+	kv.mu.Lock()
+	defer kv.mu.Unlock()
+	kv.executedMsg[commandIndex] = raft.ApplyMsg{}
+	defer delete(kv.executedMsg, commandIndex)
+
+	// set a timer and wait command to be executed
+	getRequestTime := time.Now()
+	myTimer(&kv.mu, kv.waitApplyCond, kv.timeout)
+	for kv.lastExecuted < commandIndex && time.Now().Sub(getRequestTime) < kv.timeout {
+		kv.waitApplyCond.Wait()
+	}
+	if time.Now().Sub(getRequestTime) >= kv.timeout {
+		reply.Err = ErrOpNotExecuted
+		KVPrintf(kv, "reply the client-%v request-%v (%v) timeout: logIndex-%v, key-%v, value-%v",
+			args.ClientID%10000, args.RequestID, args.Op, commandIndex, args.Key, args.Value)
+		return
+	}
+
+	// check applied command
+	executedMsg := kv.executedMsg[commandIndex]
+	if executedMsg.CommandTerm != term {
+		reply.Err = ErrOpNotExecuted
+		KVPrintf(kv, "reply the client-%v request-%v (%v) ErrOpNotExecuted: logIndex-%v, key-%v, value-%v",
+			args.ClientID%10000, args.RequestID, args.Op, commandIndex, args.Key, args.Value)
+		return
+	}
+	reply.Err = OK
+	KVPrintf(kv, "reply the client-%v request-%v (%v) success: logIndex-%v, key-%v, value-%v",
+		args.ClientID%10000, args.RequestID, args.Op, commandIndex, args.Key, args.Value)
+	return
+}
+
+func myTimer(mu *sync.Mutex, cond *sync.Cond, duration time.Duration) {
+	go func() {
+		time.Sleep(duration)
+		mu.Lock()
+		cond.Broadcast()
+		mu.Unlock()
+	}()
 }
 
 //
@@ -65,6 +193,95 @@ func (kv *KVServer) Kill() {
 func (kv *KVServer) killed() bool {
 	z := atomic.LoadInt32(&kv.dead)
 	return z == 1
+}
+
+func (kv *KVServer) updateStateMachine() {
+	for m := range kv.applyCh {
+		if !m.CommandValid {
+			KVPrintf(kv, "command is invalid, time to decode Snapshot")
+			rawSnapshot := m.Command.([]byte)
+			kv.decodeKVState(rawSnapshot)
+			continue
+		}
+		command := m.Command.(Op)
+		kv.mu.Lock()
+		// prevent duplicate command here!!!!
+		if kv.clientRequestID[command.ClientID] >= command.RequestID {
+			//KVPrintf(kv, "client-%v request-%v logIndex-%v, duplicate command, do not execute",
+			//	command.ClientID%10000, command.RequestID, m.CommandIndex)
+		} else {
+			switch command.Operation {
+			case GetOp:
+				KVPrintf(kv, "execute client-%v request-%v [GET], logIndex-%v",
+					command.ClientID%10000, command.RequestID, m.CommandIndex)
+			case PutOp:
+				kv.stateMachine[command.Key] = command.Value
+				KVPrintf(kv, "execute client-%v request-%v [PUT], logIndex-%v, key-%v, value-%v",
+					command.ClientID%10000, command.RequestID, m.CommandIndex, command.Key, command.Value)
+			case AppendOp:
+				kv.stateMachine[command.Key] = kv.stateMachine[command.Key] + command.Value
+				KVPrintf(kv, "execute client-%v request-%v [APPEND], logIndex-%v, key-%v, value-%v, new_value-%v",
+					command.ClientID%10000, command.RequestID, m.CommandIndex, command.Key, command.Value, kv.stateMachine[command.Key])
+			default:
+				KVPrintf(kv, "unknow command operation type, logIndex-%v", m.CommandIndex)
+			}
+			kv.clientRequestID[command.ClientID] = command.RequestID
+		}
+		// wake up client-facing RPC handler
+		kv.lastExecuted = m.CommandIndex
+		kv.waitApplyCond.Broadcast()
+		if _, isOk := kv.executedMsg[m.CommandIndex]; isOk {
+			kv.executedMsg[m.CommandIndex] = m
+		}
+		kv.monitorRaftState(m.CommandIndex, m.CommandTerm)
+		if kv.killed() {
+			kv.mu.Unlock()
+			break
+		}
+		kv.mu.Unlock()
+	}
+}
+
+func (kv *KVServer) monitorRaftState(logIndex int, term int) {
+	// already have kv lock
+	portion := 2.0 / 3
+	if kv.maxraftstate <= 0 || kv.persister.RaftStateSize() < int(float64(kv.maxraftstate)*portion) {
+		return
+	}
+	KVPrintf(kv, "approach to maxraftstate, start snapshot, raftstatesize = %v", kv.persister.RaftStateSize())
+	rawSnapshot := kv.encodeKVState()
+	// cannot take kv's lock, so need a new goroutine
+	go func() { kv.rf.TakeSnapshot(logIndex, term, rawSnapshot) }()
+}
+
+func (kv *KVServer) encodeKVState() []byte {
+	w := new(bytes.Buffer)
+	encoder := labgob.NewEncoder(w)
+	err := encoder.Encode(kv.stateMachine)
+	err = encoder.Encode(kv.clientRequestID)
+	if err != nil {
+		fmt.Printf("encode kv state failed on kvserver %v, err = %v\n", kv.me, err)
+	}
+	data := w.Bytes()
+	return data
+}
+
+func (kv *KVServer) decodeKVState(data []byte) {
+	if data == nil || len(data) < 1 {
+		return
+	}
+	r := bytes.NewBuffer(data)
+	d := labgob.NewDecoder(r)
+	var stateMachine map[string]string
+	var clientRequestID map[int64]int32
+	if d.Decode(&stateMachine) != nil || d.Decode(&clientRequestID) != nil {
+		fmt.Printf("decode kv state failed on kvserver %v\n", kv.me)
+	} else {
+		kv.mu.Lock()
+		kv.stateMachine = stateMachine
+		kv.clientRequestID = clientRequestID
+		kv.mu.Unlock()
+	}
 }
 
 //
@@ -89,13 +306,23 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv := new(KVServer)
 	kv.me = me
 	kv.maxraftstate = maxraftstate
+	kv.persister = persister
 
 	// You may need initialization code here.
-
 	kv.applyCh = make(chan raft.ApplyMsg)
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 
 	// You may need initialization code here.
+	kv.startTime = time.Now()
+	kv.timeout = 500 * time.Millisecond // 500ms for timeout
+	kv.stateMachine = make(map[string]string)
+	kv.clientRequestID = make(map[int64]int32)
+	kv.waitApplyCond = sync.NewCond(&kv.mu)
+	kv.executedMsg = make(map[int]raft.ApplyMsg)
+
+	kv.decodeKVState(kv.persister.ReadSnapshot())
+
+	go kv.updateStateMachine()
 
 	return kv
 }

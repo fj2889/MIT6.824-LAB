@@ -11,12 +11,12 @@ for ((i = 1; i <= $1; i++)); do
     if [ $? -ne 0 ]; then
       end=$(date +%s)
       take=$(( end - start ))
-      echo "shardmaster test $1 $i failed, take time ${take}s"
+      echo "shardmaster test $i failed, take time ${take}s"
       break
     else
       end=$(date +%s)
       take=$(( end - start ))
-      echo "shardmaster test $1 $i succeed, take time ${take}s"
+      echo "shardmaster test $i succeed, take time ${take}s"
     fi
     sleep 0.5
 done

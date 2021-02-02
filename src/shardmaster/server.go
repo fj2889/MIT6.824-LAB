@@ -2,6 +2,7 @@ package shardmaster
 
 import (
 	"../raft"
+	"../util"
 	"sort"
 	"sync/atomic"
 	"time"
@@ -333,10 +334,7 @@ func (sm *ShardMaster) updateStateMachine() {
 func (sm *ShardMaster) ExecuteJoin(command Op, commandIndex int) {
 	SMPrintf(sm, "execute client-%v request-%v [Join], logIndex-%v",
 		command.ClientID%10000, command.RequestID, commandIndex)
-	newGroups := make(map[int][]string)
-	for gid, server := range sm.getCurrentConfig().Groups {
-		newGroups[gid] = server
-	}
+	newGroups := util.DeepCopyMap(sm.getCurrentConfig().Groups)
 	for gid, servers := range command.Servers {
 		if _, ok := sm.getCurrentConfig().Groups[gid]; !ok {
 			newGroups[gid] = servers
@@ -353,10 +351,7 @@ func (sm *ShardMaster) ExecuteJoin(command Op, commandIndex int) {
 func (sm *ShardMaster) ExecuteLeave(command Op, commandIndex int) {
 	SMPrintf(sm, "execute client-%v request-%v [Leave], logIndex-%v",
 		command.ClientID%10000, command.RequestID, commandIndex)
-	newGroups := make(map[int][]string)
-	for gid, server := range sm.getCurrentConfig().Groups {
-		newGroups[gid] = server
-	}
+	newGroups := util.DeepCopyMap(sm.getCurrentConfig().Groups)
 	for _, gid := range command.GIDs {
 		delete(newGroups, gid)
 	}
@@ -370,7 +365,7 @@ func (sm *ShardMaster) ExecuteLeave(command Op, commandIndex int) {
 
 func (sm *ShardMaster) divideShard() {
 	gids := make([]int, 0)
-	for gid, _ := range sm.getCurrentConfig().Groups {
+	for gid := range sm.getCurrentConfig().Groups {
 		gids = append(gids, gid)
 	}
 	sort.Ints(gids)
@@ -390,10 +385,7 @@ func (sm *ShardMaster) ExecuteMove(command Op, commandIndex int) {
 	SMPrintf(sm, "execute client-%v request-%v [Move], logIndex-%v",
 		command.ClientID%10000, command.RequestID, commandIndex)
 	// copy config
-	newGroups := make(map[int][]string)
-	for gid, server := range sm.getCurrentConfig().Groups {
-		newGroups[gid] = server
-	}
+	newGroups := util.DeepCopyMap(sm.getCurrentConfig().Groups)
 	newConfig := Config{
 		Num:    sm.getCurrentConfig().Num + 1,
 		Shards: sm.getCurrentConfig().Shards,

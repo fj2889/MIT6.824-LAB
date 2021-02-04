@@ -45,8 +45,9 @@ type ShardKV struct {
 	startTime time.Time
 	timeout   time.Duration
 
-	stateMachine     map[string]string
-	clientRequestSeq map[int64]int32
+	//stateMachine     map[string]string
+	stateMachine map[int]Shard
+	//clientRequestSeq map[int64]int32
 
 	executedMsg       map[int]raft.ApplyMsg
 	lastExecutedIndex int
@@ -54,9 +55,18 @@ type ShardKV struct {
 }
 
 type Shard struct {
-	ShardID int
-	Data map[string]string
+	ShardID          int
+	Data             map[string]string
 	clientRequestSeq map[int64]int32
+}
+
+func (kv *ShardKV) getShardByKey(key string) Shard {
+	s, ok := kv.stateMachine[key2shard(key)]
+	if !ok {
+		KVPrintf(kv, "wrong group when get shard by key")
+		panic("wrong group when get shard by key")
+	}
+	return s
 }
 
 func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
@@ -70,7 +80,7 @@ func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
 	kv.mu.Lock()
 	defer kv.mu.Unlock()
 	if reply.Err == OK {
-		value, isOk := kv.stateMachine[args.Key]
+		value, isOk := kv.getShardByKey(args.Key).Data[args.Key]
 		if isOk {
 			reply.Value = value
 			reply.Err = OK
@@ -97,16 +107,7 @@ func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 func (kv *ShardKV) templateHandler(command Op) Err {
 	var result Err
 	paraData1 := []interface{}{command.ClientID % 10000, command.RequestID, command.Operation, command.Key, command.Value}
-	// check duplicate
 	kv.mu.Lock()
-	if command.Operation != GetOp {
-		if currentRequestID, ok := kv.clientRequestSeq[command.ClientID]; ok && currentRequestID >= command.RequestID {
-			result = ErrDuplicateRequest
-			KVPrintf(kv, "reply the client-%v request-%v (%v) duplicate command: key-%v, value-%v", paraData1...)
-			kv.mu.Unlock()
-			return result
-		}
-	}
 	// check group
 	if kv.config.Shards[key2shard(command.Key)] != kv.gid {
 		result = ErrWrongGroup
@@ -114,6 +115,16 @@ func (kv *ShardKV) templateHandler(command Op) Err {
 		KVPrintf(kv, "reply the client-%v request-%v (%v) wrong group: key-%v, value-%v, target_gid-%v, config-%v", paraData1...)
 		kv.mu.Unlock()
 		return result
+	}
+	if command.Operation != GetOp {
+		// check duplicate
+		if currentRequestID, ok := kv.getShardByKey(command.Key).clientRequestSeq[command.ClientID]; ok &&
+			currentRequestID >= command.RequestID {
+			result = ErrDuplicateRequest
+			KVPrintf(kv, "reply the client-%v request-%v (%v) duplicate command: key-%v, value-%v", paraData1...)
+			kv.mu.Unlock()
+			return result
+		}
 	}
 	kv.mu.Unlock()
 
@@ -190,14 +201,6 @@ func (kv *ShardKV) killed() bool {
 	return z == 1
 }
 
-func (kv *ShardKV) checkDuplicateAndShard(command Op) bool {
-	if (command.Key == "" && command.Config.Num != kv.config.Num) || (kv.clientRequestSeq[command.ClientID] < command.RequestID &&
-		kv.config.Shards[key2shard(command.Key)] == kv.gid) {
-		return true
-	}
-	return false
-}
-
 func (kv *ShardKV) updateStateMachine() {
 	for m := range kv.applyCh {
 		if !m.CommandValid {
@@ -209,27 +212,33 @@ func (kv *ShardKV) updateStateMachine() {
 		command := m.Command.(Op)
 		kv.mu.Lock()
 		// prevent duplicate command here!!!! prevent concurrent reconfig and request
-		if kv.checkDuplicateAndShard(command) {
-			switch command.Operation {
-			case GetOp:
-				KVPrintf(kv, "execute client-%v request-%v [GET], logIndex-%v",
-					command.ClientID%10000, command.RequestID, m.CommandIndex)
-			case PutOp:
-				kv.stateMachine[command.Key] = command.Value
-				KVPrintf(kv, "execute client-%v request-%v [PUT], logIndex-%v, key-%v, value-%v",
-					command.ClientID%10000, command.RequestID, m.CommandIndex, command.Key, command.Value)
-			case AppendOp:
-				kv.stateMachine[command.Key] = kv.stateMachine[command.Key] + command.Value
-				KVPrintf(kv, "execute client-%v request-%v [APPEND], logIndex-%v, key-%v, value-%v, new_value-%v",
-					command.ClientID%10000, command.RequestID, m.CommandIndex, command.Key, command.Value, kv.stateMachine[command.Key])
-			case ReconfigureOp:
+		if command.Operation != ReconfigureOp {
+			if kv.config.Shards[key2shard(command.Key)] == kv.gid &&
+				kv.getShardByKey(command.Key).clientRequestSeq[command.ClientID] < command.RequestID {
+				switch command.Operation {
+				case GetOp:
+					KVPrintf(kv, "execute client-%v request-%v [GET], logIndex-%v",
+						command.ClientID%10000, command.RequestID, m.CommandIndex)
+				case PutOp:
+					kv.stateMachine[key2shard(command.Key)].Data[command.Key] = command.Value
+					KVPrintf(kv, "execute client-%v request-%v [PUT], logIndex-%v, key-%v, value-%v",
+						command.ClientID%10000, command.RequestID, m.CommandIndex, command.Key, command.Value)
+				case AppendOp:
+					kv.stateMachine[key2shard(command.Key)].Data[command.Key] += command.Value
+					KVPrintf(kv, "execute client-%v request-%v [APPEND], logIndex-%v, key-%v, value-%v, new_value-%v",
+						command.ClientID%10000, command.RequestID, m.CommandIndex, command.Key, command.Value, kv.stateMachine[key2shard(command.Key)].Data[command.Key])
+				default:
+					KVPrintf(kv, "unknow command operation type, logIndex-%v", m.CommandIndex)
+				}
+				kv.stateMachine[key2shard(command.Key)].clientRequestSeq[command.ClientID] = command.RequestID
+			}
+		} else {
+			// reconfig
+			if command.Config.Num != kv.config.Num {
 				kv.config = deepCopyConfig(command.Config)
 				KVPrintf(kv, "execute [reconfigure], logIndex-%v, new_config-%v",
 					m.CommandIndex, kv.config)
-			default:
-				KVPrintf(kv, "unknow command operation type, logIndex-%v", m.CommandIndex)
 			}
-			kv.clientRequestSeq[command.ClientID] = command.RequestID
 		}
 		// wake up client-facing RPC handler
 		kv.lastExecutedIndex = m.CommandIndex
@@ -262,7 +271,6 @@ func (kv *ShardKV) encodeKVState() []byte {
 	w := new(bytes.Buffer)
 	encoder := labgob.NewEncoder(w)
 	err := encoder.Encode(kv.stateMachine)
-	err = encoder.Encode(kv.clientRequestSeq)
 	if err != nil {
 		fmt.Printf("encode kv state failed on kvserver %v, err = %v\n", kv.me, err)
 	}
@@ -276,35 +284,38 @@ func (kv *ShardKV) decodeKVState(data []byte) {
 	}
 	r := bytes.NewBuffer(data)
 	d := labgob.NewDecoder(r)
-	var stateMachine map[string]string
-	var clientRequestID map[int64]int32
-	if d.Decode(&stateMachine) != nil || d.Decode(&clientRequestID) != nil {
+	var stateMachine map[int]Shard
+	if d.Decode(&stateMachine) != nil {
 		fmt.Printf("decode kv state failed on kvserver %v\n", kv.me)
 	} else {
 		kv.mu.Lock()
 		kv.stateMachine = stateMachine
-		kv.clientRequestSeq = clientRequestID
 		kv.mu.Unlock()
 	}
 }
 
 func (kv *ShardKV) checkConfigUpdate() {
 	for {
-		newConfig := kv.mck.Query(-1)
+		if _, isLeader := kv.rf.GetState(); isLeader {
+			newConfig := kv.mck.Query(-1)
+			kv.mu.Lock()
+			if kv.config.Num != newConfig.Num {
+				KVPrintf(kv, "find new configuration, old config = %v, new config = %v", kv.config, newConfig)
+				kv.mu.Unlock()
+				//shard := kv.pullShard(newConfig)
+				command := Op{
+					Operation: ReconfigureOp,
+					Config:    newConfig,
+				}
+				_, _, _ = kv.rf.Start(command)
+				kv.mu.Lock()
+			}
+			kv.mu.Unlock()
+		}
 		kv.mu.Lock()
 		if kv.killed() {
 			kv.mu.Unlock()
 			break
-		}
-		if kv.config.Num != newConfig.Num {
-			KVPrintf(kv, "find new configuration, old config = %v, new config = %v", kv.config, newConfig)
-			kv.mu.Unlock()
-			command := Op{
-				Operation: ReconfigureOp,
-				Config:    newConfig,
-			}
-			_, _, _ = kv.rf.Start(command)
-			kv.mu.Lock()
 		}
 		kv.mu.Unlock()
 		time.Sleep(100 * time.Millisecond)
@@ -361,8 +372,14 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 
 	kv.startTime = time.Now()
 	kv.timeout = 500 * time.Millisecond // 500ms for timeout
-	kv.stateMachine = make(map[string]string)
-	kv.clientRequestSeq = make(map[int64]int32)
+	kv.stateMachine = make(map[int]Shard)
+	for i := 0; i < len(kv.config.Shards); i++ {
+		kv.stateMachine[i] = Shard{
+			ShardID:          i,
+			Data:             make(map[string]string),
+			clientRequestSeq: make(map[int64]int32),
+		}
+	}
 	kv.waitApplyCond = sync.NewCond(&kv.mu)
 	kv.executedMsg = make(map[int]raft.ApplyMsg)
 

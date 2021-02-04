@@ -39,7 +39,7 @@ func main() {
 	//if err != nil {
 	//	fmt.Println(err)
 	//}
-	x := [2]int{1, 2}
-	y := [2]int{1, 2}
-	fmt.Println(x == y)
+	x := "123"
+	x += "456"
+	fmt.Println(x)
 }

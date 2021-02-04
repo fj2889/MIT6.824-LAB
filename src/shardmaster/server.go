@@ -288,6 +288,7 @@ func (sm *ShardMaster) rebalance(command Op) {
 func getGroupShardMap(cfg *Config) map[int][]int {
 	// include gid in shard and in Group map
 	result := make(map[int][]int)
+	// !!!
 	for gid, _ := range cfg.Groups {
 		result[gid] = []int{}
 	}

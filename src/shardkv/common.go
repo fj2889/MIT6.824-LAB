@@ -61,6 +61,17 @@ type GetReply struct {
 	Value string
 }
 
+type MigrateShardArgs struct {
+	ConfigNum int
+	ShardNum  int
+}
+
+type MigrateShardReply struct {
+	ConfigNum        int
+	ShardData        map[string]string
+	ClientRequestSeq map[int64]int32
+}
+
 const Debug = 1
 
 func KVPrintf(kv *ShardKV, format string, a ...interface{}) {

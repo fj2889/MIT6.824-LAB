@@ -98,6 +98,8 @@ func (sm *ShardMaster) Query(args *QueryArgs, reply *QueryReply) {
 	paraName := "ConfigNum-(%v)"
 	paraData := []interface{}{command.Num}
 	reply.Err = sm.templateHandler(command, paraName, paraData)
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
 	if reply.Err == OK {
 		if args.Num == -1 || args.Num >= sm.getCurrentConfig().Num {
 			reply.Config = *sm.getCurrentConfig()
@@ -232,6 +234,7 @@ func (sm *ShardMaster) updateConfig(command Op, commandIndex int) {
 }
 
 func (sm *ShardMaster) createNewConfig() *Config {
+	// already have lock
 	newGroups := util.DeepCopyMap(sm.getCurrentConfig().Groups)
 	newConfig := Config{
 		Num:    sm.getCurrentConfig().Num + 1,
@@ -281,6 +284,7 @@ func (sm *ShardMaster) rebalance(command Op) {
 }
 
 func getGroupShardMap(cfg *Config) map[int][]int {
+	// include gid in shard and in Group map
 	result := make(map[int][]int)
 	for gid, _ := range cfg.Groups {
 		result[gid] = []int{}

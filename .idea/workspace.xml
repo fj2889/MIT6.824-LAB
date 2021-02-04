@@ -23,13 +23,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09e7cf81-81b8-458c-a61d-216e9b54ba39" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/shardkv/loop_to_test_shardkv.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/test.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shardkv/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shardkv/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/common.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shardkv/Shards_out" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/Shards_out" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardkv/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shardmaster/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardmaster/common.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardmaster/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardmaster/server.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardmaster/shardmaster_out" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardmaster/shardmaster_out" afterDir="false" />
     </list>

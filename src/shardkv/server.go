@@ -54,102 +54,28 @@ type ShardKV struct {
 }
 
 func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
-	// Get do not need check duplicate, but need check shard
-	kv.mu.Lock()
-	if kv.getOpShardCheck(args, reply) {
-		kv.mu.Unlock()
-		return
-	}
-	kv.mu.Unlock()
-
-	// send the log to raft
 	command := Op{
 		Key:       args.Key,
 		Operation: GetOp,
 		ClientID:  args.ClientID,
 		RequestID: args.RequestID,
 	}
-	commandIndex, term, isLeader := kv.rf.Start(command) // cannot hold kv mutex!!!
-	if !isLeader {
-		reply.Err = ErrWrongLeader
-		return
+	reply.Err = kv.templateHandler(command)
+	if reply.Err == OK {
+		value, isOk := kv.stateMachine[args.Key]
+		if isOk {
+			reply.Value = value
+			reply.Err = OK
+		} else {
+			reply.Err = ErrNoKey
+		}
 	}
-	KVPrintf(kv, "get a client-%v request-%v (GET), key-%v, logIndex-%v",
-		args.ClientID%10000, args.RequestID, args.Key, commandIndex)
-
-	kv.mu.Lock()
-	defer kv.mu.Unlock()
-	kv.executedMsg[commandIndex] = raft.ApplyMsg{}
-	defer delete(kv.executedMsg, commandIndex)
-
-	// set a timer and wait command to be executed
-	getRequestTime := time.Now()
-	myTimer(&kv.mu, kv.waitApplyCond, kv.timeout)
-	for kv.lastExecutedIndex < commandIndex && time.Now().Sub(getRequestTime) < kv.timeout {
-		kv.waitApplyCond.Wait()
-	}
-	if time.Now().Sub(getRequestTime) >= kv.timeout {
-		reply.Err = ErrOpNotExecuted
-		KVPrintf(kv, "reply the client-%v request-%v (GET) timeout: logIndex-%v, key-%v",
-			args.ClientID%10000, args.RequestID, commandIndex, args.Key)
-		return
-	}
-
-	// check applied command， should compare term!!!
-	executedMsg := kv.executedMsg[commandIndex]
-	if executedMsg.CommandTerm != term {
-		reply.Err = ErrOpNotExecuted
-		KVPrintf(kv, "reply the client-%v request-%v (GET) ErrOpNotExecuted: logIndex-%v, key-%v",
-			args.ClientID%10000, args.RequestID, commandIndex, args.Key)
-		return
-	}
-	// check shard again
-	if kv.getOpShardCheck(args, reply) {
-		return
-	}
-	kv.getValue(args, reply)
-	KVPrintf(kv, "reply the client-%v request-%v (GET) success: logIndex-%v, key-%v, value-%v",
-		args.ClientID%10000, args.RequestID, commandIndex, args.Key, reply.Value)
+	KVPrintf(kv, "reply the client-%v request-%v (GET) success: key-%v, value-%v, reply.Err-%v",
+		args.ClientID%10000, args.RequestID, args.Key, reply.Value, reply.Err)
 	return
 }
 
-func (kv *ShardKV) getOpShardCheck(args *GetArgs, reply *GetReply) bool {
-	if kv.config.Shards[key2shard(args.Key)] != kv.gid {
-		reply.Err = ErrWrongGroup
-		KVPrintf(kv, "reply the client-%v request-%v (GET): key-%v, target_gid-%v, wrong group",
-			args.ClientID%10000, args.RequestID, args.Key, kv.config.Shards[key2shard(args.Key)])
-		return true
-	}
-	return false
-}
-func (kv *ShardKV) getValue(args *GetArgs, reply *GetReply) {
-	// get value, already have lock
-	value, isOk := kv.stateMachine[args.Key]
-	if isOk {
-		reply.Value = value
-		reply.Err = OK
-	} else {
-		reply.Err = ErrNoKey
-	}
-}
-
 func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
-	// check duplicate
-	kv.mu.Lock()
-	if currentRequestID, ok := kv.clientRequestID[args.ClientID]; ok && currentRequestID >= args.RequestID {
-		reply.Err = ErrDuplicateRequest
-		KVPrintf(kv, "reply the client-%v request-%v (%v): key-%v, value-%v, duplicate command",
-			args.ClientID%10000, args.RequestID, args.Op, args.Key, args.Value)
-		kv.mu.Unlock()
-		return
-	}
-	if kv.PutAppendOpShardCheck(args, reply) {
-		kv.mu.Unlock()
-		return
-	}
-	kv.mu.Unlock()
-
-	// send the log to raft
 	command := Op{
 		Key:       args.Key,
 		Value:     args.Value,
@@ -157,13 +83,40 @@ func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 		ClientID:  args.ClientID,
 		RequestID: args.RequestID,
 	}
+	reply.Err = kv.templateHandler(command)
+}
+
+func (kv *ShardKV) templateHandler(command Op) Err {
+	var result Err
+	paraData1 := []interface{}{command.ClientID % 10000, command.RequestID, command.Operation, command.Key, command.Value}
+	// check duplicate
+	kv.mu.Lock()
+	if command.Operation != GetOp {
+		if currentRequestID, ok := kv.clientRequestID[command.ClientID]; ok && currentRequestID >= command.RequestID {
+			result = ErrDuplicateRequest
+			KVPrintf(kv, "reply the client-%v request-%v (%v) duplicate command: key-%v, value-%v", paraData1...)
+			kv.mu.Unlock()
+			return result
+		}
+	}
+	// check group
+	if kv.config.Shards[key2shard(command.Key)] != kv.gid {
+		result = ErrWrongGroup
+		paraData1 = append(paraData1, kv.config.Shards[key2shard(command.Key)], kv.config)
+		KVPrintf(kv, "reply the client-%v request-%v (%v) wrong group: key-%v, value-%v, target_gid-%v, config-%v", paraData1...)
+		kv.mu.Unlock()
+		return result
+	}
+	kv.mu.Unlock()
+
+	// send the log to raft
 	commandIndex, term, isLeader := kv.rf.Start(command)
 	if !isLeader {
-		reply.Err = ErrWrongLeader
-		return
+		result = ErrWrongLeader
+		return result
 	}
-	KVPrintf(kv, "get a client-%v request-%v (%v), logIndex-%v, key-%v, value-%v",
-		args.ClientID%10000, args.RequestID, args.Op, commandIndex, args.Key, args.Value)
+	paraData := []interface{}{command.ClientID % 10000, command.RequestID, command.Operation, commandIndex, command.Key, command.Value}
+	KVPrintf(kv, "get a client-%v request-%v (%v), logIndex-%v, key-%v, value-%v", paraData...)
 
 	kv.mu.Lock()
 	defer kv.mu.Unlock()
@@ -177,38 +130,30 @@ func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 		kv.waitApplyCond.Wait()
 	}
 	if time.Now().Sub(getRequestTime) >= kv.timeout {
-		reply.Err = ErrOpNotExecuted
-		KVPrintf(kv, "reply the client-%v request-%v (%v) timeout: logIndex-%v, key-%v, value-%v",
-			args.ClientID%10000, args.RequestID, args.Op, commandIndex, args.Key, args.Value)
-		return
+		result = ErrOpNotExecuted
+		KVPrintf(kv, "reply the client-%v request-%v (%v) timeout: logIndex-%v, key-%v, value-%v", paraData...)
+		return result
 	}
 
 	// check applied command
 	executedMsg := kv.executedMsg[commandIndex]
 	if executedMsg.CommandTerm != term {
-		reply.Err = ErrOpNotExecuted
-		KVPrintf(kv, "reply the client-%v request-%v (%v) ErrOpNotExecuted: logIndex-%v, key-%v, value-%v",
-			args.ClientID%10000, args.RequestID, args.Op, commandIndex, args.Key, args.Value)
-		return
+		result = ErrOpNotExecuted
+		KVPrintf(kv, "reply the client-%v request-%v (%v) ErrOpNotExecuted: logIndex-%v, key-%v, value-%v", paraData...)
+		return result
 	}
-	// check shard again
-	if kv.PutAppendOpShardCheck(args, reply) {
-		return
+	// check group again
+	if kv.config.Shards[key2shard(command.Key)] != kv.gid {
+		result = ErrWrongGroup
+		paraData1 = append(paraData1, kv.config.Shards[key2shard(command.Key)], kv.config)
+		KVPrintf(kv, "reply the client-%v request-%v (%v) wrong group: key-%v, value-%v, target_gid-%v, config-%v", paraData1...)
+		return result
 	}
-	reply.Err = OK
-	KVPrintf(kv, "reply the client-%v request-%v (%v) success: logIndex-%v, key-%v, value-%v",
-		args.ClientID%10000, args.RequestID, args.Op, commandIndex, args.Key, args.Value)
-	return
-}
-
-func (kv *ShardKV) PutAppendOpShardCheck(args *PutAppendArgs, reply *PutAppendReply) bool {
-	if kv.config.Shards[key2shard(args.Key)] != kv.gid {
-		reply.Err = ErrWrongGroup
-		KVPrintf(kv, "reply the client-%v request-%v (%v): key-%v, value-%v, target_gid-%v, wrong group, config-%v",
-			args.ClientID%10000, args.RequestID, args.Op, args.Key, args.Value, kv.config.Shards[key2shard(args.Key)], kv.config)
-		return true
+	result = OK
+	if command.Operation != GetOp {
+		KVPrintf(kv, "reply the client-%v request-%v (%v) success: logIndex-%v, key-%v, value-%v", paraData...)
 	}
-	return false
+	return result
 }
 
 func myTimer(mu *sync.Mutex, cond *sync.Cond, duration time.Duration) {

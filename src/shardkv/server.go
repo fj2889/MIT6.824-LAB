@@ -45,12 +45,18 @@ type ShardKV struct {
 	startTime time.Time
 	timeout   time.Duration
 
-	stateMachine    map[string]string
-	clientRequestID map[int64]int32
+	stateMachine     map[string]string
+	clientRequestSeq map[int64]int32
 
 	executedMsg       map[int]raft.ApplyMsg
 	lastExecutedIndex int
 	waitApplyCond     *sync.Cond
+}
+
+type Shard struct {
+	ShardID int
+	Data map[string]string
+	clientRequestSeq map[int64]int32
 }
 
 func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
@@ -61,6 +67,8 @@ func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
 		RequestID: args.RequestID,
 	}
 	reply.Err = kv.templateHandler(command)
+	kv.mu.Lock()
+	defer kv.mu.Unlock()
 	if reply.Err == OK {
 		value, isOk := kv.stateMachine[args.Key]
 		if isOk {
@@ -92,7 +100,7 @@ func (kv *ShardKV) templateHandler(command Op) Err {
 	// check duplicate
 	kv.mu.Lock()
 	if command.Operation != GetOp {
-		if currentRequestID, ok := kv.clientRequestID[command.ClientID]; ok && currentRequestID >= command.RequestID {
+		if currentRequestID, ok := kv.clientRequestSeq[command.ClientID]; ok && currentRequestID >= command.RequestID {
 			result = ErrDuplicateRequest
 			KVPrintf(kv, "reply the client-%v request-%v (%v) duplicate command: key-%v, value-%v", paraData1...)
 			kv.mu.Unlock()
@@ -183,7 +191,7 @@ func (kv *ShardKV) killed() bool {
 }
 
 func (kv *ShardKV) checkDuplicateAndShard(command Op) bool {
-	if (command.Key == "" && command.Config.Num != kv.config.Num) || (kv.clientRequestID[command.ClientID] < command.RequestID &&
+	if (command.Key == "" && command.Config.Num != kv.config.Num) || (kv.clientRequestSeq[command.ClientID] < command.RequestID &&
 		kv.config.Shards[key2shard(command.Key)] == kv.gid) {
 		return true
 	}
@@ -221,7 +229,7 @@ func (kv *ShardKV) updateStateMachine() {
 			default:
 				KVPrintf(kv, "unknow command operation type, logIndex-%v", m.CommandIndex)
 			}
-			kv.clientRequestID[command.ClientID] = command.RequestID
+			kv.clientRequestSeq[command.ClientID] = command.RequestID
 		}
 		// wake up client-facing RPC handler
 		kv.lastExecutedIndex = m.CommandIndex
@@ -254,7 +262,7 @@ func (kv *ShardKV) encodeKVState() []byte {
 	w := new(bytes.Buffer)
 	encoder := labgob.NewEncoder(w)
 	err := encoder.Encode(kv.stateMachine)
-	err = encoder.Encode(kv.clientRequestID)
+	err = encoder.Encode(kv.clientRequestSeq)
 	if err != nil {
 		fmt.Printf("encode kv state failed on kvserver %v, err = %v\n", kv.me, err)
 	}
@@ -275,7 +283,7 @@ func (kv *ShardKV) decodeKVState(data []byte) {
 	} else {
 		kv.mu.Lock()
 		kv.stateMachine = stateMachine
-		kv.clientRequestID = clientRequestID
+		kv.clientRequestSeq = clientRequestID
 		kv.mu.Unlock()
 	}
 }
@@ -354,7 +362,7 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 	kv.startTime = time.Now()
 	kv.timeout = 500 * time.Millisecond // 500ms for timeout
 	kv.stateMachine = make(map[string]string)
-	kv.clientRequestID = make(map[int64]int32)
+	kv.clientRequestSeq = make(map[int64]int32)
 	kv.waitApplyCond = sync.NewCond(&kv.mu)
 	kv.executedMsg = make(map[int]raft.ApplyMsg)
 

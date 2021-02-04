@@ -1,57 +1,320 @@
 Test: static shards ...
-388: [Group 102, KVServer 2] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
-463: [Group 102, KVServer 2] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
-565: [Group 102, KVServer 0] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
-565: [Group 102, KVServer 1] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
-601: [Group 100, KVServer 2] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-602: [Group 100, KVServer 1] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-596: [Group 101, KVServer 2] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-603: [Group 100, KVServer 0] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-595: [Group 102, KVServer 1] find new configuration, old config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-597: [Group 101, KVServer 1] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-596: [Group 102, KVServer 0] find new configuration, old config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-595: [Group 102, KVServer 2] find new configuration, old config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-602: [Group 101, KVServer 0] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-665: [Group 102, KVServer 2] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-693: [Group 100, KVServer 0] execute [reconfigure], logIndex-1, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-692: [Group 101, KVServer 0] execute [reconfigure], logIndex-1, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-711: [Group 100, KVServer 0] get a client-2851 request-1 (Put), logIndex-2, key-0, value-MOZyuehpcEPcxYkcaP7z
-747: [Group 102, KVServer 0] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-746: [Group 102, KVServer 1] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-795: [Group 100, KVServer 0] execute client-2851 request-1 [PUT], logIndex-2, key-0, value-MOZyuehpcEPcxYkcaP7z
-795: [Group 100, KVServer 0] reply the client-2851 request-1 (Put) success: logIndex-2, key-0, value-MOZyuehpcEPcxYkcaP7z
-788: [Group 101, KVServer 2] execute [reconfigure], logIndex-1, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-794: [Group 100, KVServer 2] execute [reconfigure], logIndex-1, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-794: [Group 100, KVServer 1] execute [reconfigure], logIndex-1, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-789: [Group 101, KVServer 1] execute [reconfigure], logIndex-1, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
-797: [Group 100, KVServer 0] get a client-2851 request-2 (Put), logIndex-3, key-1, value-wVhGnRlPSh5OIr0fiNdb
-896: [Group 100, KVServer 2] execute client-2851 request-1 [PUT], logIndex-2, key-0, value-MOZyuehpcEPcxYkcaP7z
-897: [Group 100, KVServer 0] execute client-2851 request-2 [PUT], logIndex-3, key-1, value-wVhGnRlPSh5OIr0fiNdb
-896: [Group 100, KVServer 1] execute client-2851 request-1 [PUT], logIndex-2, key-0, value-MOZyuehpcEPcxYkcaP7z
-897: [Group 100, KVServer 0] reply the client-2851 request-2 (Put) success: logIndex-3, key-1, value-wVhGnRlPSh5OIr0fiNdb
-897: [Group 101, KVServer 0] get a client-2851 request-3 (Put), logIndex-2, key-2, value-yRU9HfhYCpnU5kv_eLaO
-997: [Group 101, KVServer 0] execute client-2851 request-3 [PUT], logIndex-2, key-2, value-yRU9HfhYCpnU5kv_eLaO
-998: [Group 100, KVServer 2] execute client-2851 request-2 [PUT], logIndex-3, key-1, value-wVhGnRlPSh5OIr0fiNdb
-997: [Group 101, KVServer 0] reply the client-2851 request-3 (Put) success: logIndex-2, key-2, value-yRU9HfhYCpnU5kv_eLaO
-999: [Group 100, KVServer 1] execute client-2851 request-2 [PUT], logIndex-3, key-1, value-wVhGnRlPSh5OIr0fiNdb
-998: [Group 101, KVServer 0] get a client-2851 request-4 (Put), logIndex-3, key-3, value-S_RaYSUG3yGdcTdPZ1kY
-1098: [Group 101, KVServer 0] execute client-2851 request-4 [PUT], logIndex-3, key-3, value-S_RaYSUG3yGdcTdPZ1kY
-1098: [Group 101, KVServer 0] reply the client-2851 request-4 (Put) success: logIndex-3, key-3, value-S_RaYSUG3yGdcTdPZ1kY
-1093: [Group 101, KVServer 2] execute client-2851 request-3 [PUT], logIndex-2, key-2, value-yRU9HfhYCpnU5kv_eLaO
-1094: [Group 101, KVServer 1] execute client-2851 request-3 [PUT], logIndex-2, key-2, value-yRU9HfhYCpnU5kv_eLaO
-1100: [Group 101, KVServer 0] get a client-2851 request-5 (Put), logIndex-4, key-4, value-jBy6ifIh_Ctdgh2UQsZm
-1196: [Group 101, KVServer 1] execute client-2851 request-4 [PUT], logIndex-3, key-3, value-S_RaYSUG3yGdcTdPZ1kY
-1200: [Group 101, KVServer 0] execute client-2851 request-5 [PUT], logIndex-4, key-4, value-jBy6ifIh_Ctdgh2UQsZm
-1196: [Group 101, KVServer 2] execute client-2851 request-4 [PUT], logIndex-3, key-3, value-S_RaYSUG3yGdcTdPZ1kY
-1201: [Group 101, KVServer 0] reply the client-2851 request-5 (Put) success: logIndex-4, key-4, value-jBy6ifIh_Ctdgh2UQsZm
-1204: [Group 101, KVServer 0] get a client-2851 request-6 (Put), logIndex-5, key-5, value-Ah4BQMtKx6l6bEZ9eQ-5
-1297: [Group 101, KVServer 1] execute client-2851 request-5 [PUT], logIndex-4, key-4, value-jBy6ifIh_Ctdgh2UQsZm
-1301: [Group 101, KVServer 0] execute client-2851 request-6 [PUT], logIndex-5, key-5, value-Ah4BQMtKx6l6bEZ9eQ-5
-1297: [Group 101, KVServer 2] execute client-2851 request-5 [PUT], logIndex-4, key-4, value-jBy6ifIh_Ctdgh2UQsZm
-1302: [Group 101, KVServer 0] reply the client-2851 request-6 (Put) success: logIndex-5, key-5, value-Ah4BQMtKx6l6bEZ9eQ-5
-1303: [Group 101, KVServer 0] get a client-2851 request-7 (Put), logIndex-6, key-6, value-VTq3iOmqjsMO2B9lZe1U
-1399: [Group 101, KVServer 1] execute client-2851 request-6 [PUT], logIndex-5, key-5, value-Ah4BQMtKx6l6bEZ9eQ-5
-1398: [Group 101, KVServer 2] execute client-2851 request-6 [PUT], logIndex-5, key-5, value-Ah4BQMtKx6l6bEZ9eQ-5
-1403: [Group 101, KVServer 0] execute client-2851 request-7 [PUT], logIndex-6, key-6, value-VTq3iOmqjsMO2B9lZe1U
-1403: [Group 101, KVServer 0] reply the client-2851 request-7 (Put) success: logIndex-6, key-6, value-VTq3iOmqjsMO2B9lZe1U
-1406: [Group 100, KVServer 0] get a client-2851 request-8 (Put), logIndex-4, key-7, value-HlvpyNOadknqAee6F4qK
+397: [Group 101, KVServer 0] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+400: [Group 100, KVServer 0] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+394: [Group 102, KVServer 2] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+400: [Group 100, KVServer 1] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+397: [Group 101, KVServer 2] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+399: [Group 101, KVServer 1] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+396: [Group 102, KVServer 1] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+398: [Group 102, KVServer 0] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+401: [Group 100, KVServer 2] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+468: [Group 100, KVServer 1] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+480: [Group 101, KVServer 2] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+479: [Group 102, KVServer 0] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+565: [Group 100, KVServer 0] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+562: [Group 100, KVServer 2] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+579: [Group 102, KVServer 2] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+579: [Group 102, KVServer 1] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+582: [Group 101, KVServer 0] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+582: [Group 101, KVServer 1] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+611: [Group 100, KVServer 0] find new configuration, old config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+606: [Group 102, KVServer 0] find new configuration, old config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+607: [Group 101, KVServer 2] find new configuration, old config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+606: [Group 102, KVServer 1] find new configuration, old config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+611: [Group 100, KVServer 2] find new configuration, old config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+610: [Group 101, KVServer 0] find new configuration, old config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+607: [Group 102, KVServer 2] find new configuration, old config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+610: [Group 101, KVServer 1] find new configuration, old config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+613: [Group 100, KVServer 1] find new configuration, old config = {1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+666: [Group 100, KVServer 1] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+682: [Group 102, KVServer 0] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+682: [Group 101, KVServer 2] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+744: [Group 100, KVServer 2] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+747: [Group 100, KVServer 0] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+781: [Group 102, KVServer 1] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+784: [Group 101, KVServer 1] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+781: [Group 102, KVServer 2] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+784: [Group 101, KVServer 0] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+818: [Group 100, KVServer 1] get a client-1454 request-1 (Put), logIndex-3, key-0, value-LEHfWk3JC2CgrlPXELrF
+847: [Group 100, KVServer 1] execute client-1454 request-1 [PUT], logIndex-3, key-0, value-LEHfWk3JC2CgrlPXELrF
+847: [Group 100, KVServer 1] reply the client-1454 request-1 (Put) success: logIndex-3, key-0, value-LEHfWk3JC2CgrlPXELrF
+labgob warning: Decoding into a non-default variable/field Err may not work
+849: [Group 100, KVServer 1] get a client-1454 request-2 (Put), logIndex-4, key-1, value-odPa1SqdxFdm3zDnJnAK
+950: [Group 100, KVServer 1] execute client-1454 request-2 [PUT], logIndex-4, key-1, value-odPa1SqdxFdm3zDnJnAK
+950: [Group 100, KVServer 1] reply the client-1454 request-2 (Put) success: logIndex-4, key-1, value-odPa1SqdxFdm3zDnJnAK
+949: [Group 100, KVServer 2] execute client-1454 request-1 [PUT], logIndex-3, key-0, value-LEHfWk3JC2CgrlPXELrF
+952: [Group 100, KVServer 0] execute client-1454 request-1 [PUT], logIndex-3, key-0, value-LEHfWk3JC2CgrlPXELrF
+948: [Group 101, KVServer 2] get a client-1454 request-3 (Put), logIndex-3, key-2, value-_Sxi9M2AUAYFrT44sj5b
+988: [Group 101, KVServer 2] execute client-1454 request-3 [PUT], logIndex-3, key-2, value-_Sxi9M2AUAYFrT44sj5b
+988: [Group 101, KVServer 2] reply the client-1454 request-3 (Put) success: logIndex-3, key-2, value-_Sxi9M2AUAYFrT44sj5b
+989: [Group 101, KVServer 2] get a client-1454 request-4 (Put), logIndex-4, key-3, value-J0A3oofa5C3VTXObBpa7
+1051: [Group 100, KVServer 2] execute client-1454 request-2 [PUT], logIndex-4, key-1, value-odPa1SqdxFdm3zDnJnAK
+1053: [Group 100, KVServer 0] execute client-1454 request-2 [PUT], logIndex-4, key-1, value-odPa1SqdxFdm3zDnJnAK
+1071: [Group 101, KVServer 0] execute client-1454 request-3 [PUT], logIndex-3, key-2, value-_Sxi9M2AUAYFrT44sj5b
+1071: [Group 101, KVServer 1] execute client-1454 request-3 [PUT], logIndex-3, key-2, value-_Sxi9M2AUAYFrT44sj5b
+1090: [Group 101, KVServer 2] execute client-1454 request-4 [PUT], logIndex-4, key-3, value-J0A3oofa5C3VTXObBpa7
+1090: [Group 101, KVServer 2] reply the client-1454 request-4 (Put) success: logIndex-4, key-3, value-J0A3oofa5C3VTXObBpa7
+1092: [Group 101, KVServer 2] get a client-1454 request-5 (Put), logIndex-5, key-4, value-lpg7Fjvv3sGR8QLVLpgM
+1171: [Group 101, KVServer 2] execute client-1454 request-5 [PUT], logIndex-5, key-4, value-lpg7Fjvv3sGR8QLVLpgM
+1171: [Group 101, KVServer 2] reply the client-1454 request-5 (Put) success: logIndex-5, key-4, value-lpg7Fjvv3sGR8QLVLpgM
+1172: [Group 101, KVServer 0] execute client-1454 request-4 [PUT], logIndex-4, key-3, value-J0A3oofa5C3VTXObBpa7
+1172: [Group 101, KVServer 1] execute client-1454 request-4 [PUT], logIndex-4, key-3, value-J0A3oofa5C3VTXObBpa7
+1172: [Group 101, KVServer 2] get a client-1454 request-6 (Put), logIndex-6, key-5, value-NUfaxsx-Or1kkoiaH40s
+1274: [Group 101, KVServer 0] execute client-1454 request-5 [PUT], logIndex-5, key-4, value-lpg7Fjvv3sGR8QLVLpgM
+1273: [Group 101, KVServer 1] execute client-1454 request-5 [PUT], logIndex-5, key-4, value-lpg7Fjvv3sGR8QLVLpgM
+1272: [Group 101, KVServer 2] execute client-1454 request-6 [PUT], logIndex-6, key-5, value-NUfaxsx-Or1kkoiaH40s
+1272: [Group 101, KVServer 2] reply the client-1454 request-6 (Put) success: logIndex-6, key-5, value-NUfaxsx-Or1kkoiaH40s
+1274: [Group 101, KVServer 2] get a client-1454 request-7 (Put), logIndex-7, key-6, value-ArbNk1wDwUvVr6f90yDp
+1377: [Group 101, KVServer 1] execute client-1454 request-6 [PUT], logIndex-6, key-5, value-NUfaxsx-Or1kkoiaH40s
+1377: [Group 101, KVServer 0] execute client-1454 request-6 [PUT], logIndex-6, key-5, value-NUfaxsx-Or1kkoiaH40s
+1376: [Group 101, KVServer 2] execute client-1454 request-7 [PUT], logIndex-7, key-6, value-ArbNk1wDwUvVr6f90yDp
+1376: [Group 101, KVServer 2] reply the client-1454 request-7 (Put) success: logIndex-7, key-6, value-ArbNk1wDwUvVr6f90yDp
+1383: [Group 100, KVServer 1] get a client-1454 request-8 (Put), logIndex-5, key-7, value-I4-1JmFe-G87etvcG39B
+1461: [Group 100, KVServer 1] execute client-1454 request-8 [PUT], logIndex-5, key-7, value-I4-1JmFe-G87etvcG39B
+1461: [Group 100, KVServer 1] reply the client-1454 request-8 (Put) success: logIndex-5, key-7, value-I4-1JmFe-G87etvcG39B
+1463: [Group 100, KVServer 1] get a client-1454 request-9 (Put), logIndex-6, key-8, value-WDoCr9xkfGae8QQSBSnc
+1479: [Group 101, KVServer 1] execute client-1454 request-7 [PUT], logIndex-7, key-6, value-ArbNk1wDwUvVr6f90yDp
+1480: [Group 101, KVServer 0] execute client-1454 request-7 [PUT], logIndex-7, key-6, value-ArbNk1wDwUvVr6f90yDp
+1563: [Group 100, KVServer 1] execute client-1454 request-9 [PUT], logIndex-6, key-8, value-WDoCr9xkfGae8QQSBSnc
+1561: [Group 100, KVServer 2] execute client-1454 request-8 [PUT], logIndex-5, key-7, value-I4-1JmFe-G87etvcG39B
+1563: [Group 100, KVServer 0] execute client-1454 request-8 [PUT], logIndex-5, key-7, value-I4-1JmFe-G87etvcG39B
+1563: [Group 100, KVServer 1] reply the client-1454 request-9 (Put) success: logIndex-6, key-8, value-WDoCr9xkfGae8QQSBSnc
+1564: [Group 100, KVServer 1] get a client-1454 request-10 (Put), logIndex-7, key-9, value-8ZIVEVYGSfETUOaPaOMs
+1662: [Group 100, KVServer 2] execute client-1454 request-9 [PUT], logIndex-6, key-8, value-WDoCr9xkfGae8QQSBSnc
+1664: [Group 100, KVServer 0] execute client-1454 request-9 [PUT], logIndex-6, key-8, value-WDoCr9xkfGae8QQSBSnc
+1664: [Group 100, KVServer 1] execute client-1454 request-10 [PUT], logIndex-7, key-9, value-8ZIVEVYGSfETUOaPaOMs
+1664: [Group 100, KVServer 1] reply the client-1454 request-10 (Put) success: logIndex-7, key-9, value-8ZIVEVYGSfETUOaPaOMs
+1666: [Group 100, KVServer 1] get a client-1454 request-11 (Get), logIndex-8, key-0, value-
+1765: [Group 100, KVServer 1] execute client-1454 request-11 [GET], logIndex-8
+1766: [Group 100, KVServer 0] execute client-1454 request-10 [PUT], logIndex-7, key-9, value-8ZIVEVYGSfETUOaPaOMs
+1763: [Group 100, KVServer 2] execute client-1454 request-10 [PUT], logIndex-7, key-9, value-8ZIVEVYGSfETUOaPaOMs
+1765: [Group 100, KVServer 1] reply the client-1454 request-11 (GET) success: key-0, value-LEHfWk3JC2CgrlPXELrF, reply.Err-OK
+1766: [Group 100, KVServer 1] get a client-1454 request-12 (Get), logIndex-9, key-1, value-
+1868: [Group 100, KVServer 0] execute client-1454 request-11 [GET], logIndex-8
+1866: [Group 100, KVServer 2] execute client-1454 request-11 [GET], logIndex-8
+1868: [Group 100, KVServer 1] execute client-1454 request-12 [GET], logIndex-9
+1868: [Group 100, KVServer 1] reply the client-1454 request-12 (GET) success: key-1, value-odPa1SqdxFdm3zDnJnAK, reply.Err-OK
+1867: [Group 101, KVServer 2] get a client-1454 request-13 (Get), logIndex-8, key-2, value-
+1885: [Group 101, KVServer 2] execute client-1454 request-13 [GET], logIndex-8
+1885: [Group 101, KVServer 2] reply the client-1454 request-13 (GET) success: key-2, value-_Sxi9M2AUAYFrT44sj5b, reply.Err-OK
+1888: [Group 101, KVServer 2] get a client-1454 request-14 (Get), logIndex-9, key-3, value-
+1948: [Group 100, KVServer 2] execute client-1454 request-12 [GET], logIndex-9
+1951: [Group 100, KVServer 0] execute client-1454 request-12 [GET], logIndex-9
+1986: [Group 101, KVServer 2] execute client-1454 request-14 [GET], logIndex-9
+1987: [Group 101, KVServer 0] execute client-1454 request-13 [GET], logIndex-8
+1986: [Group 101, KVServer 2] reply the client-1454 request-14 (GET) success: key-3, value-J0A3oofa5C3VTXObBpa7, reply.Err-OK
+1986: [Group 101, KVServer 1] execute client-1454 request-13 [GET], logIndex-8
+1989: [Group 101, KVServer 2] get a client-1454 request-15 (Get), logIndex-10, key-4, value-
+2087: [Group 101, KVServer 1] execute client-1454 request-14 [GET], logIndex-9
+2088: [Group 101, KVServer 0] execute client-1454 request-14 [GET], logIndex-9
+2087: [Group 101, KVServer 2] execute client-1454 request-15 [GET], logIndex-10
+2087: [Group 101, KVServer 2] reply the client-1454 request-15 (GET) success: key-4, value-lpg7Fjvv3sGR8QLVLpgM, reply.Err-OK
+2089: [Group 101, KVServer 2] get a client-1454 request-16 (Get), logIndex-11, key-5, value-
+2174: [Group 101, KVServer 0] execute client-1454 request-15 [GET], logIndex-10
+2191: [Group 101, KVServer 1] execute client-1454 request-15 [GET], logIndex-10
+2191: [Group 101, KVServer 2] execute client-1454 request-16 [GET], logIndex-11
+2191: [Group 101, KVServer 2] reply the client-1454 request-16 (GET) success: key-5, value-NUfaxsx-Or1kkoiaH40s, reply.Err-OK
+2193: [Group 101, KVServer 2] get a client-1454 request-17 (Get), logIndex-12, key-6, value-
+2275: [Group 101, KVServer 0] execute client-1454 request-16 [GET], logIndex-11
+2292: [Group 101, KVServer 1] execute client-1454 request-16 [GET], logIndex-11
+2292: [Group 101, KVServer 2] execute client-1454 request-17 [GET], logIndex-12
+2292: [Group 101, KVServer 2] reply the client-1454 request-17 (GET) success: key-6, value-ArbNk1wDwUvVr6f90yDp, reply.Err-OK
+2298: [Group 100, KVServer 1] get a client-1454 request-18 (Get), logIndex-10, key-7, value-
+2356: [Group 100, KVServer 1] execute client-1454 request-18 [GET], logIndex-10
+2356: [Group 100, KVServer 1] reply the client-1454 request-18 (GET) success: key-7, value-I4-1JmFe-G87etvcG39B, reply.Err-OK
+2358: [Group 100, KVServer 1] get a client-1454 request-19 (Get), logIndex-11, key-8, value-
+2373: [Group 101, KVServer 1] execute client-1454 request-17 [GET], logIndex-12
+2376: [Group 101, KVServer 0] execute client-1454 request-17 [GET], logIndex-12
+2458: [Group 100, KVServer 0] execute client-1454 request-18 [GET], logIndex-10
+2455: [Group 100, KVServer 2] execute client-1454 request-18 [GET], logIndex-10
+2457: [Group 100, KVServer 1] execute client-1454 request-19 [GET], logIndex-11
+2457: [Group 100, KVServer 1] reply the client-1454 request-19 (GET) success: key-8, value-WDoCr9xkfGae8QQSBSnc, reply.Err-OK
+2459: [Group 100, KVServer 1] get a client-1454 request-20 (Get), logIndex-12, key-9, value-
+2558: [Group 100, KVServer 1] execute client-1454 request-20 [GET], logIndex-12
+2559: [Group 100, KVServer 0] execute client-1454 request-19 [GET], logIndex-11
+2558: [Group 100, KVServer 1] reply the client-1454 request-20 (GET) success: key-9, value-8ZIVEVYGSfETUOaPaOMs, reply.Err-OK
+2556: [Group 100, KVServer 2] execute client-1454 request-19 [GET], logIndex-11
+2657: [Group 100, KVServer 2] execute client-1454 request-20 [GET], logIndex-12
+2660: [Group 100, KVServer 0] execute client-1454 request-20 [GET], logIndex-12
+2824: [Group 100, KVServer 0] reply the client-1671 request-1 (GET) success: key-7, value-, reply.Err-ErrWrongLeader
+2824: [Group 100, KVServer 0] reply the client-9486 request-1 (GET) success: key-1, value-, reply.Err-ErrWrongLeader
+2825: [Group 100, KVServer 0] reply the client-5111 request-1 (GET) success: key-8, value-, reply.Err-ErrWrongLeader
+2825: [Group 100, KVServer 0] reply the client-5818 request-1 (GET) success: key-9, value-, reply.Err-ErrWrongLeader
+2826: [Group 100, KVServer 0] reply the client-5566 request-1 (GET) success: key-0, value-, reply.Err-ErrWrongLeader
+2825: [Group 100, KVServer 1] get a client-1671 request-1 (Get), logIndex-13, key-7, value-
+2826: [Group 100, KVServer 1] get a client-5111 request-1 (Get), logIndex-14, key-8, value-
+2827: [Group 100, KVServer 1] get a client-9486 request-1 (Get), logIndex-15, key-1, value-
+2827: [Group 100, KVServer 1] get a client-5818 request-1 (Get), logIndex-16, key-9, value-
+2828: [Group 100, KVServer 1] get a client-5566 request-1 (Get), logIndex-17, key-0, value-
+2861: [Group 100, KVServer 1] execute client-1671 request-1 [GET], logIndex-13
+2861: [Group 100, KVServer 1] execute client-5111 request-1 [GET], logIndex-14
+2861: [Group 100, KVServer 1] execute client-9486 request-1 [GET], logIndex-15
+2861: [Group 100, KVServer 1] execute client-5818 request-1 [GET], logIndex-16
+2861: [Group 100, KVServer 1] reply the client-9486 request-1 (GET) success: key-1, value-odPa1SqdxFdm3zDnJnAK, reply.Err-OK
+2861: [Group 100, KVServer 1] reply the client-1671 request-1 (GET) success: key-7, value-I4-1JmFe-G87etvcG39B, reply.Err-OK
+2861: [Group 100, KVServer 1] reply the client-5818 request-1 (GET) success: key-9, value-8ZIVEVYGSfETUOaPaOMs, reply.Err-OK
+2861: [Group 100, KVServer 1] reply the client-5111 request-1 (GET) success: key-8, value-WDoCr9xkfGae8QQSBSnc, reply.Err-OK
+2861: [Group 100, KVServer 1] execute client-5566 request-1 [GET], logIndex-17
+2862: [Group 100, KVServer 1] reply the client-5566 request-1 (GET) success: key-0, value-LEHfWk3JC2CgrlPXELrF, reply.Err-OK
+2963: [Group 100, KVServer 0] execute client-1671 request-1 [GET], logIndex-13
+2960: [Group 100, KVServer 2] execute client-1671 request-1 [GET], logIndex-13
+2960: [Group 100, KVServer 2] execute client-5111 request-1 [GET], logIndex-14
+2963: [Group 100, KVServer 0] execute client-5111 request-1 [GET], logIndex-14
+2960: [Group 100, KVServer 2] execute client-9486 request-1 [GET], logIndex-15
+2963: [Group 100, KVServer 0] execute client-9486 request-1 [GET], logIndex-15
+2961: [Group 100, KVServer 2] execute client-5818 request-1 [GET], logIndex-16
+2963: [Group 100, KVServer 0] execute client-5818 request-1 [GET], logIndex-16
+2961: [Group 100, KVServer 2] execute client-5566 request-1 [GET], logIndex-17
+2963: [Group 100, KVServer 0] execute client-5566 request-1 [GET], logIndex-17
+4867: [Group 100, KVServer 1] get a client-1454 request-21 (Get), logIndex-18, key-0, value-
+4: [Group 101, KVServer 1] reply the client-5663 request-1 (Get) wrong group: key-3, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+4: [Group 101, KVServer 1] reply the client-5663 request-1 (GET) success: key-3, value-, reply.Err-ErrWrongGroup
+59: [Group 101, KVServer 0] reply the client-7134 request-1 (Get) wrong group: key-2, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+59: [Group 101, KVServer 0] reply the client-7134 request-1 (GET) success: key-2, value-, reply.Err-ErrWrongGroup
+66: [Group 101, KVServer 1] reply the client-3495 request-1 (Get) wrong group: key-6, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+66: [Group 101, KVServer 1] reply the client-3495 request-1 (GET) success: key-6, value-, reply.Err-ErrWrongGroup
+4975: [Group 100, KVServer 1] execute client-1454 request-21 [GET], logIndex-18
+4975: [Group 100, KVServer 1] reply the client-1454 request-21 (GET) success: key-0, value-LEHfWk3JC2CgrlPXELrF, reply.Err-OK
+4977: [Group 100, KVServer 1] get a client-1454 request-22 (Get), logIndex-19, key-1, value-
+158: [Group 101, KVServer 0] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+157: [Group 101, KVServer 2] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+158: [Group 101, KVServer 1] reply the client-5663 request-1 (Get) wrong group: key-3, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+159: [Group 101, KVServer 1] reply the client-5663 request-1 (GET) success: key-3, value-, reply.Err-ErrWrongGroup
+159: [Group 101, KVServer 1] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+160: [Group 101, KVServer 0] reply the client-8310 request-1 (Get) wrong group: key-5, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+160: [Group 101, KVServer 0] reply the client-8310 request-1 (GET) success: key-5, value-, reply.Err-ErrWrongGroup
+161: [Group 101, KVServer 0] reply the client-1792 request-1 (Get) wrong group: key-4, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+161: [Group 101, KVServer 0] reply the client-1792 request-1 (GET) success: key-4, value-, reply.Err-ErrWrongGroup
+5074: [Group 100, KVServer 2] execute client-1454 request-21 [GET], logIndex-18
+5076: [Group 100, KVServer 1] execute client-1454 request-22 [GET], logIndex-19
+5077: [Group 100, KVServer 0] execute client-1454 request-21 [GET], logIndex-18
+5076: [Group 100, KVServer 1] reply the client-1454 request-22 (GET) success: key-1, value-odPa1SqdxFdm3zDnJnAK, reply.Err-OK
+212: [Group 101, KVServer 2] reply the client-1454 request-23 (Get) wrong group: key-2, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+213: [Group 101, KVServer 2] reply the client-1454 request-23 (GET) success: key-2, value-, reply.Err-ErrWrongGroup
+280: [Group 101, KVServer 0] reply the client-7134 request-1 (Get) wrong group: key-2, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+281: [Group 101, KVServer 0] reply the client-7134 request-1 (GET) success: key-2, value-, reply.Err-ErrWrongGroup
+280: [Group 101, KVServer 1] reply the client-3495 request-1 (Get) wrong group: key-6, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+280: [Group 101, KVServer 1] reply the client-3495 request-1 (GET) success: key-6, value-, reply.Err-ErrWrongGroup
+5178: [Group 100, KVServer 0] execute client-1454 request-22 [GET], logIndex-19
+5175: [Group 100, KVServer 2] execute client-1454 request-22 [GET], logIndex-19
+361: [Group 101, KVServer 2] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+363: [Group 101, KVServer 0] reply the client-8310 request-1 (Get) wrong group: key-5, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+363: [Group 101, KVServer 0] reply the client-8310 request-1 (GET) success: key-5, value-, reply.Err-ErrWrongGroup
+362: [Group 101, KVServer 1] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+364: [Group 101, KVServer 0] find new configuration, old config = {0 [0 0 0 0 0 0 0 0 0 0] map[]}, new config = {2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+363: [Group 101, KVServer 1] reply the client-5663 request-1 (Get) wrong group: key-3, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+363: [Group 101, KVServer 1] reply the client-5663 request-1 (GET) success: key-3, value-, reply.Err-ErrWrongGroup
+363: [Group 101, KVServer 2] reply the client-1454 request-23 (Get) wrong group: key-2, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+365: [Group 101, KVServer 0] reply the client-1792 request-1 (Get) wrong group: key-4, value-, target_gid-0, config-{0 [0 0 0 0 0 0 0 0 0 0] map[]}
+363: [Group 101, KVServer 2] reply the client-1454 request-23 (GET) success: key-2, value-, reply.Err-ErrWrongGroup
+365: [Group 101, KVServer 0] reply the client-1792 request-1 (GET) success: key-4, value-, reply.Err-ErrWrongGroup
+384: [Group 101, KVServer 2] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+384: [Group 101, KVServer 2] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+384: [Group 101, KVServer 2] execute client-1454 request-3 [PUT], logIndex-3, key-2, value-_Sxi9M2AUAYFrT44sj5b
+384: [Group 101, KVServer 2] execute client-1454 request-4 [PUT], logIndex-4, key-3, value-J0A3oofa5C3VTXObBpa7
+384: [Group 101, KVServer 2] execute client-1454 request-5 [PUT], logIndex-5, key-4, value-lpg7Fjvv3sGR8QLVLpgM
+384: [Group 101, KVServer 2] execute client-1454 request-6 [PUT], logIndex-6, key-5, value-NUfaxsx-Or1kkoiaH40s
+384: [Group 101, KVServer 2] execute client-1454 request-7 [PUT], logIndex-7, key-6, value-ArbNk1wDwUvVr6f90yDp
+384: [Group 101, KVServer 2] execute client-1454 request-13 [GET], logIndex-8
+384: [Group 101, KVServer 2] execute client-1454 request-14 [GET], logIndex-9
+384: [Group 101, KVServer 2] execute client-1454 request-15 [GET], logIndex-10
+384: [Group 101, KVServer 2] execute client-1454 request-16 [GET], logIndex-11
+384: [Group 101, KVServer 2] execute client-1454 request-17 [GET], logIndex-12
+466: [Group 101, KVServer 0] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+466: [Group 101, KVServer 0] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+466: [Group 101, KVServer 0] execute client-1454 request-3 [PUT], logIndex-3, key-2, value-_Sxi9M2AUAYFrT44sj5b
+466: [Group 101, KVServer 0] execute client-1454 request-4 [PUT], logIndex-4, key-3, value-J0A3oofa5C3VTXObBpa7
+466: [Group 101, KVServer 0] execute client-1454 request-5 [PUT], logIndex-5, key-4, value-lpg7Fjvv3sGR8QLVLpgM
+466: [Group 101, KVServer 0] execute client-1454 request-6 [PUT], logIndex-6, key-5, value-NUfaxsx-Or1kkoiaH40s
+466: [Group 101, KVServer 0] execute client-1454 request-7 [PUT], logIndex-7, key-6, value-ArbNk1wDwUvVr6f90yDp
+466: [Group 101, KVServer 0] execute client-1454 request-13 [GET], logIndex-8
+466: [Group 101, KVServer 0] execute client-1454 request-14 [GET], logIndex-9
+466: [Group 101, KVServer 0] execute client-1454 request-15 [GET], logIndex-10
+466: [Group 101, KVServer 0] execute client-1454 request-16 [GET], logIndex-11
+466: [Group 101, KVServer 0] execute client-1454 request-17 [GET], logIndex-12
+483: [Group 101, KVServer 1] execute [reconfigure], logIndex-1, new_config-{1 [100 100 100 100 100 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2]]}
+483: [Group 101, KVServer 1] execute [reconfigure], logIndex-2, new_config-{2 [101 101 101 101 101 100 100 100 100 100] map[100:[server-100-0 server-100-1 server-100-2] 101:[server-101-0 server-101-1 server-101-2]]}
+483: [Group 101, KVServer 1] execute client-1454 request-3 [PUT], logIndex-3, key-2, value-_Sxi9M2AUAYFrT44sj5b
+483: [Group 101, KVServer 1] execute client-1454 request-4 [PUT], logIndex-4, key-3, value-J0A3oofa5C3VTXObBpa7
+483: [Group 101, KVServer 1] execute client-1454 request-5 [PUT], logIndex-5, key-4, value-lpg7Fjvv3sGR8QLVLpgM
+483: [Group 101, KVServer 1] execute client-1454 request-6 [PUT], logIndex-6, key-5, value-NUfaxsx-Or1kkoiaH40s
+483: [Group 101, KVServer 1] execute client-1454 request-7 [PUT], logIndex-7, key-6, value-ArbNk1wDwUvVr6f90yDp
+483: [Group 101, KVServer 1] execute client-1454 request-13 [GET], logIndex-8
+484: [Group 101, KVServer 1] execute client-1454 request-14 [GET], logIndex-9
+484: [Group 101, KVServer 1] execute client-1454 request-15 [GET], logIndex-10
+484: [Group 101, KVServer 1] execute client-1454 request-16 [GET], logIndex-11
+484: [Group 101, KVServer 1] execute client-1454 request-17 [GET], logIndex-12
+508: [Group 101, KVServer 1] reply the client-3495 request-1 (GET) success: key-6, value-, reply.Err-ErrWrongLeader
+509: [Group 101, KVServer 0] reply the client-7134 request-1 (GET) success: key-2, value-, reply.Err-ErrWrongLeader
+509: [Group 101, KVServer 1] reply the client-7134 request-1 (GET) success: key-2, value-, reply.Err-ErrWrongLeader
+508: [Group 101, KVServer 2] get a client-3495 request-1 (Get), logIndex-14, key-6, value-
+509: [Group 101, KVServer 2] get a client-7134 request-1 (Get), logIndex-15, key-2, value-
+567: [Group 101, KVServer 2] execute client-3495 request-1 [GET], logIndex-14
+567: [Group 101, KVServer 2] execute client-7134 request-1 [GET], logIndex-15
+567: [Group 101, KVServer 2] reply the client-7134 request-1 (GET) success: key-2, value-_Sxi9M2AUAYFrT44sj5b, reply.Err-OK
+567: [Group 101, KVServer 2] reply the client-3495 request-1 (GET) success: key-6, value-ArbNk1wDwUvVr6f90yDp, reply.Err-OK
+572: [Group 101, KVServer 0] reply the client-8310 request-1 (GET) success: key-5, value-, reply.Err-ErrWrongLeader
+573: [Group 101, KVServer 0] reply the client-1792 request-1 (GET) success: key-4, value-, reply.Err-ErrWrongLeader
+572: [Group 101, KVServer 1] reply the client-5663 request-1 (GET) success: key-3, value-, reply.Err-ErrWrongLeader
+572: [Group 101, KVServer 1] reply the client-1792 request-1 (GET) success: key-4, value-, reply.Err-ErrWrongLeader
+572: [Group 101, KVServer 1] reply the client-8310 request-1 (GET) success: key-5, value-, reply.Err-ErrWrongLeader
+572: [Group 101, KVServer 2] get a client-1454 request-23 (Get), logIndex-16, key-2, value-
+573: [Group 101, KVServer 2] get a client-8310 request-1 (Get), logIndex-17, key-5, value-
+574: [Group 101, KVServer 2] get a client-5663 request-1 (Get), logIndex-18, key-3, value-
+574: [Group 101, KVServer 2] get a client-1792 request-1 (Get), logIndex-19, key-4, value-
+667: [Group 101, KVServer 1] execute client-3495 request-1 [GET], logIndex-14
+667: [Group 101, KVServer 1] execute client-7134 request-1 [GET], logIndex-15
+668: [Group 101, KVServer 0] execute client-3495 request-1 [GET], logIndex-14
+669: [Group 101, KVServer 0] execute client-7134 request-1 [GET], logIndex-15
+669: [Group 101, KVServer 2] execute client-1454 request-23 [GET], logIndex-16
+669: [Group 101, KVServer 2] execute client-8310 request-1 [GET], logIndex-17
+669: [Group 101, KVServer 2] execute client-5663 request-1 [GET], logIndex-18
+669: [Group 101, KVServer 2] execute client-1792 request-1 [GET], logIndex-19
+669: [Group 101, KVServer 2] reply the client-8310 request-1 (GET) success: key-5, value-NUfaxsx-Or1kkoiaH40s, reply.Err-OK
+669: [Group 101, KVServer 2] reply the client-1454 request-23 (GET) success: key-2, value-_Sxi9M2AUAYFrT44sj5b, reply.Err-OK
+669: [Group 101, KVServer 2] reply the client-1792 request-1 (GET) success: key-4, value-lpg7Fjvv3sGR8QLVLpgM, reply.Err-OK
+670: [Group 101, KVServer 2] reply the client-5663 request-1 (GET) success: key-3, value-J0A3oofa5C3VTXObBpa7, reply.Err-OK
+671: [Group 101, KVServer 2] get a client-1454 request-24 (Get), logIndex-20, key-3, value-
+769: [Group 101, KVServer 1] execute client-1454 request-23 [GET], logIndex-16
+769: [Group 101, KVServer 1] execute client-8310 request-1 [GET], logIndex-17
+770: [Group 101, KVServer 0] execute client-1454 request-23 [GET], logIndex-16
+770: [Group 101, KVServer 0] execute client-8310 request-1 [GET], logIndex-17
+770: [Group 101, KVServer 0] execute client-5663 request-1 [GET], logIndex-18
+769: [Group 101, KVServer 1] execute client-5663 request-1 [GET], logIndex-18
+770: [Group 101, KVServer 1] execute client-1792 request-1 [GET], logIndex-19
+770: [Group 101, KVServer 0] execute client-1792 request-1 [GET], logIndex-19
+770: [Group 101, KVServer 2] execute client-1454 request-24 [GET], logIndex-20
+770: [Group 101, KVServer 2] reply the client-1454 request-24 (GET) success: key-3, value-J0A3oofa5C3VTXObBpa7, reply.Err-OK
+773: [Group 101, KVServer 2] get a client-1454 request-25 (Get), logIndex-21, key-4, value-
+873: [Group 101, KVServer 0] execute client-1454 request-24 [GET], logIndex-20
+871: [Group 101, KVServer 2] execute client-1454 request-25 [GET], logIndex-21
+872: [Group 101, KVServer 1] execute client-1454 request-24 [GET], logIndex-20
+871: [Group 101, KVServer 2] reply the client-1454 request-25 (GET) success: key-4, value-lpg7Fjvv3sGR8QLVLpgM, reply.Err-OK
+872: [Group 101, KVServer 2] get a client-1454 request-26 (Get), logIndex-22, key-5, value-
+973: [Group 101, KVServer 1] execute client-1454 request-25 [GET], logIndex-21
+974: [Group 101, KVServer 0] execute client-1454 request-25 [GET], logIndex-21
+972: [Group 101, KVServer 2] execute client-1454 request-26 [GET], logIndex-22
+972: [Group 101, KVServer 2] reply the client-1454 request-26 (GET) success: key-5, value-NUfaxsx-Or1kkoiaH40s, reply.Err-OK
+974: [Group 101, KVServer 2] get a client-1454 request-27 (Get), logIndex-23, key-6, value-
+1075: [Group 101, KVServer 0] execute client-1454 request-26 [GET], logIndex-22
+1074: [Group 101, KVServer 1] execute client-1454 request-26 [GET], logIndex-22
+1073: [Group 101, KVServer 2] execute client-1454 request-27 [GET], logIndex-23
+1073: [Group 101, KVServer 2] reply the client-1454 request-27 (GET) success: key-6, value-ArbNk1wDwUvVr6f90yDp, reply.Err-OK
+5940: [Group 100, KVServer 1] get a client-1454 request-28 (Get), logIndex-20, key-7, value-
+5968: [Group 100, KVServer 1] execute client-1454 request-28 [GET], logIndex-20
+5968: [Group 100, KVServer 1] reply the client-1454 request-28 (GET) success: key-7, value-I4-1JmFe-G87etvcG39B, reply.Err-OK
+5970: [Group 100, KVServer 1] get a client-1454 request-29 (Get), logIndex-21, key-8, value-
+1176: [Group 101, KVServer 0] execute client-1454 request-27 [GET], logIndex-23
+1175: [Group 101, KVServer 1] execute client-1454 request-27 [GET], logIndex-23
+6066: [Group 100, KVServer 2] execute client-1454 request-28 [GET], logIndex-20
+6069: [Group 100, KVServer 1] execute client-1454 request-29 [GET], logIndex-21
+6069: [Group 100, KVServer 0] execute client-1454 request-28 [GET], logIndex-20
+6069: [Group 100, KVServer 1] reply the client-1454 request-29 (GET) success: key-8, value-WDoCr9xkfGae8QQSBSnc, reply.Err-OK
+6070: [Group 100, KVServer 1] get a client-1454 request-30 (Get), logIndex-22, key-9, value-
+6167: [Group 100, KVServer 2] execute client-1454 request-29 [GET], logIndex-21
+6170: [Group 100, KVServer 0] execute client-1454 request-29 [GET], logIndex-21
+6169: [Group 100, KVServer 1] execute client-1454 request-30 [GET], logIndex-22
+6169: [Group 100, KVServer 1] reply the client-1454 request-30 (GET) success: key-9, value-8ZIVEVYGSfETUOaPaOMs, reply.Err-OK
+  ... Passed
+PASS
+ok  	_/Users/fujie/go/6.824/src/shardkv	6.462s

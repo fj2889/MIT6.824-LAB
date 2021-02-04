@@ -253,7 +253,9 @@ func (sm *ShardMaster) rebalance(command Op) {
 	case JoinOp:
 		avg := NShards / len(cfg.Groups)
 		remain := NShards % len(cfg.Groups)
-		for gid, _ := range command.Servers {
+		// should keep some order for group to join in!!!
+		gids := util.GetKeyOfMap(command.Servers)
+		for _, gid := range gids {
 			shardNum := avg
 			// there are (remain - len(oldCfg.Groups) groups getting avg+1 shard
 			if remain > len(oldCfg.Groups) {

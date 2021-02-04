@@ -28,6 +28,7 @@
       <change beforePath="$PROJECT_DIR$/src/shardkv/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/server.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardmaster/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardmaster/server.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardmaster/shardmaster_out" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardmaster/shardmaster_out" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/util.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/util.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

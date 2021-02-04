@@ -3,7 +3,7 @@ package shardmaster
 import (
 	"../raft"
 	"../util"
-	"sort"
+	"math"
 	"sync/atomic"
 	"time"
 )
@@ -43,141 +43,35 @@ type Op struct {
 	RequestID int32
 }
 
-func (sm *ShardMaster) getCurrentConfig() Config {
-	return sm.configs[len(sm.configs)-1]
+func (sm *ShardMaster) getCurrentConfig() *Config {
+	return &sm.configs[len(sm.configs)-1]
 }
 
 func (sm *ShardMaster) Join(args *JoinArgs, reply *JoinReply) {
-	// check duplicate
-	sm.mu.Lock()
-	if currentRequestID, ok := sm.clientRequestID[args.ClientID]; ok && currentRequestID >= args.RequestID {
-		reply.Err = ErrDuplicateRequest
-		SMPrintf(sm, "reply the client-%v request-%v (Join): Servers-%v, duplicate command",
-			args.ClientID%10000, args.RequestID, args.Servers)
-		sm.mu.Unlock()
-		return
-	}
-	sm.mu.Unlock()
-
-	// send the log to raft
 	command := Op{
 		Servers:   args.Servers,
 		Operation: JoinOp,
 		ClientID:  args.ClientID,
 		RequestID: args.RequestID,
 	}
-	commandIndex, term, isLeader := sm.rf.Start(command)
-	if !isLeader {
-		reply.Err = ErrWrongLeader
-		return
-	}
-	SMPrintf(sm, "get a client-%v request-%v (Join): logIndex-%v, servers-%v",
-		args.ClientID%10000, args.RequestID, commandIndex, args.Servers)
-
-	sm.mu.Lock()
-	defer sm.mu.Unlock()
-	sm.executedMsg[commandIndex] = raft.ApplyMsg{}
-	defer delete(sm.executedMsg, commandIndex)
-
-	// set a timer and wait command to be executed
-	getRequestTime := time.Now()
-	myTimer(&sm.mu, sm.waitApplyCond, sm.timeout)
-	for sm.lastExecutedIndex < commandIndex && time.Now().Sub(getRequestTime) < sm.timeout {
-		sm.waitApplyCond.Wait()
-	}
-	if time.Now().Sub(getRequestTime) >= sm.timeout {
-		reply.Err = ErrOpNotExecuted
-		SMPrintf(sm, "reply the client-%v request-%v (Join) timeout: logIndex-%v, servers-%v",
-			args.ClientID%10000, args.RequestID, commandIndex, args.Servers)
-		return
-	}
-
-	// check applied command
-	executedMsg := sm.executedMsg[commandIndex]
-	if executedMsg.CommandTerm != term {
-		reply.Err = ErrOpNotExecuted
-		SMPrintf(sm, "reply the client-%v request-%v (Join) ErrOpNotExecuted: logIndex-%v, servers-%v",
-			args.ClientID%10000, args.RequestID, commandIndex, args.Servers)
-		return
-	}
-	reply.Err = OK
-	SMPrintf(sm, "reply the client-%v request-%v (Join) success: logIndex-%v, servers-%v, new_groups-%v",
-		args.ClientID%10000, args.RequestID, commandIndex, args.Servers, sm.getCurrentConfig().Groups)
-	return
+	paraName := "Servers-%v"
+	paraData := []interface{}{args.Servers}
+	reply.Err = sm.templateHandler(command, paraName, paraData)
 }
 
 func (sm *ShardMaster) Leave(args *LeaveArgs, reply *LeaveReply) {
-	// check duplicate
-	sm.mu.Lock()
-	if currentRequestID, ok := sm.clientRequestID[args.ClientID]; ok && currentRequestID >= args.RequestID {
-		reply.Err = ErrDuplicateRequest
-		SMPrintf(sm, "reply the client-%v request-%v (Leave): GIDs-%v, duplicate command",
-			args.ClientID%10000, args.RequestID, args.GIDs)
-		sm.mu.Unlock()
-		return
-	}
-	sm.mu.Unlock()
-
-	// send the log to raft
 	command := Op{
 		GIDs:      args.GIDs,
 		Operation: LeaveOp,
 		ClientID:  args.ClientID,
 		RequestID: args.RequestID,
 	}
-	commandIndex, term, isLeader := sm.rf.Start(command)
-	if !isLeader {
-		reply.Err = ErrWrongLeader
-		return
-	}
-	SMPrintf(sm, "get a client-%v request-%v (Leave): logIndex-%v, GIDs-%v",
-		args.ClientID%10000, args.RequestID, commandIndex, args.GIDs)
-
-	sm.mu.Lock()
-	defer sm.mu.Unlock()
-	sm.executedMsg[commandIndex] = raft.ApplyMsg{}
-	defer delete(sm.executedMsg, commandIndex)
-
-	// set a timer and wait command to be executed
-	getRequestTime := time.Now()
-	myTimer(&sm.mu, sm.waitApplyCond, sm.timeout)
-	for sm.lastExecutedIndex < commandIndex && time.Now().Sub(getRequestTime) < sm.timeout {
-		sm.waitApplyCond.Wait()
-	}
-	if time.Now().Sub(getRequestTime) >= sm.timeout {
-		reply.Err = ErrOpNotExecuted
-		SMPrintf(sm, "reply the client-%v request-%v (Leave) timeout: logIndex-%v, GIDs-%v",
-			args.ClientID%10000, args.RequestID, commandIndex, args.GIDs)
-		return
-	}
-
-	// check applied command
-	executedMsg := sm.executedMsg[commandIndex]
-	if executedMsg.CommandTerm != term {
-		reply.Err = ErrOpNotExecuted
-		SMPrintf(sm, "reply the client-%v request-%v (Leave) ErrOpNotExecuted: logIndex-%v, GIDs-%v",
-			args.ClientID%10000, args.RequestID, commandIndex, args.GIDs)
-		return
-	}
-	reply.Err = OK
-	SMPrintf(sm, "reply the client-%v request-%v (Leave) success: logIndex-%v, GIDs-%v, new_groups-%v",
-		args.ClientID%10000, args.RequestID, commandIndex, args.GIDs, sm.getCurrentConfig().Groups)
-	return
+	paraName := "GIDs-%v"
+	paraData := []interface{}{command.GIDs}
+	reply.Err = sm.templateHandler(command, paraName, paraData)
 }
 
 func (sm *ShardMaster) Move(args *MoveArgs, reply *MoveReply) {
-	// check duplicate
-	sm.mu.Lock()
-	if currentRequestID, ok := sm.clientRequestID[args.ClientID]; ok && currentRequestID >= args.RequestID {
-		reply.Err = ErrDuplicateRequest
-		SMPrintf(sm, "reply the client-%v request-%v (Move): GID-%v, Shard-%v, duplicate command",
-			args.ClientID%10000, args.RequestID, args.GID, args.Shard)
-		sm.mu.Unlock()
-		return
-	}
-	sm.mu.Unlock()
-
-	// send the log to raft
 	command := Op{
 		GIDs:      []int{args.GID},
 		Shard:     args.Shard,
@@ -185,62 +79,59 @@ func (sm *ShardMaster) Move(args *MoveArgs, reply *MoveReply) {
 		ClientID:  args.ClientID,
 		RequestID: args.RequestID,
 	}
-	commandIndex, term, isLeader := sm.rf.Start(command)
-	if !isLeader {
-		reply.Err = ErrWrongLeader
-		return
-	}
-	SMPrintf(sm, "get a client-%v request-%v (Move): logIndex-%v, GID-%v, Shard-%v",
-		args.ClientID%10000, args.RequestID, commandIndex, args.GID, args.Shard)
-
-	sm.mu.Lock()
-	defer sm.mu.Unlock()
-	sm.executedMsg[commandIndex] = raft.ApplyMsg{}
-	defer delete(sm.executedMsg, commandIndex)
-
-	// set a timer and wait command to be executed
-	getRequestTime := time.Now()
-	myTimer(&sm.mu, sm.waitApplyCond, sm.timeout)
-	for sm.lastExecutedIndex < commandIndex && time.Now().Sub(getRequestTime) < sm.timeout {
-		sm.waitApplyCond.Wait()
-	}
-	if time.Now().Sub(getRequestTime) >= sm.timeout {
-		reply.Err = ErrOpNotExecuted
-		SMPrintf(sm, "reply the client-%v request-%v (Move) timeout: logIndex-%v, GID-%v, Shard-%v",
-			args.ClientID%10000, args.RequestID, commandIndex, args.GID, args.Shard)
-		return
-	}
-
-	// check applied command
-	executedMsg := sm.executedMsg[commandIndex]
-	if executedMsg.CommandTerm != term {
-		reply.Err = ErrOpNotExecuted
-		SMPrintf(sm, "reply the client-%v request-%v (Move) ErrOpNotExecuted: logIndex-%v, GIDs-%v, Shard-%v",
-			args.ClientID%10000, args.RequestID, commandIndex, args.GID, args.Shard)
-		return
-	}
-	reply.Err = OK
-	SMPrintf(sm, "reply the client-%v request-%v (Move) success: logIndex-%v, GID-%v, Shard-%v, new_groups-%v",
-		args.ClientID%10000, args.RequestID, commandIndex, args.GID, args.Shard, sm.getCurrentConfig().Groups)
-	return
+	paraName := "ShardNum-%v, GID-%v"
+	paraData := []interface{}{command.Shard, command.GIDs[0]}
+	reply.Err = sm.templateHandler(command, paraName, paraData)
 }
 
 func (sm *ShardMaster) Query(args *QueryArgs, reply *QueryReply) {
-	// do not need check duplicate
-	// send the log to raft
+	if args.Num < 0 && args.Num != -1 {
+		reply.Err = ErrWrongNum
+		return
+	}
 	command := Op{
 		Num:       args.Num,
 		Operation: QueryOp,
 		ClientID:  args.ClientID,
 		RequestID: args.RequestID,
 	}
+	paraName := "ConfigNum-(%v)"
+	paraData := []interface{}{command.Num}
+	reply.Err = sm.templateHandler(command, paraName, paraData)
+	if reply.Err == OK {
+		if args.Num == -1 || args.Num >= sm.getCurrentConfig().Num {
+			reply.Config = *sm.getCurrentConfig()
+		} else {
+			reply.Config = sm.configs[args.Num]
+		}
+		SMPrintf(sm, "reply the client-%v request-%v (Query) success: Num-%v, config-%v",
+			args.ClientID%10000, args.RequestID, args.Num, reply.Config)
+	}
+}
+
+func (sm *ShardMaster) templateHandler(command Op, paraName string, paraData []interface{}) Err {
+	var result Err
+	paraData1 := append([]interface{}{command.ClientID % 10000, command.RequestID, command.Operation}, paraData...)
+	if command.Operation != QueryOp {
+		// check duplicate
+		sm.mu.Lock()
+		if currentRequestID, ok := sm.clientRequestID[command.ClientID]; ok && currentRequestID >= command.RequestID {
+			result = ErrDuplicateRequest
+			SMPrintf(sm, "reply the client-%v request-%v (%v) duplicate command: "+paraName, paraData1...)
+			sm.mu.Unlock()
+			return result
+		}
+		sm.mu.Unlock()
+	}
+
+	// send the log to raft
 	commandIndex, term, isLeader := sm.rf.Start(command)
 	if !isLeader {
-		reply.Err = ErrWrongLeader
-		return
+		result = ErrWrongLeader
+		return result
 	}
-	SMPrintf(sm, "get a client-%v request-%v (Query): logIndex-%v, Num-%v",
-		args.ClientID%10000, args.RequestID, commandIndex, args.Num)
+	paraData = append([]interface{}{command.ClientID % 10000, command.RequestID, command.Operation, commandIndex}, paraData...)
+	SMPrintf(sm, "get a client-%v request-%v (%v): logIndex-%v, "+paraName, paraData...)
 
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -254,33 +145,25 @@ func (sm *ShardMaster) Query(args *QueryArgs, reply *QueryReply) {
 		sm.waitApplyCond.Wait()
 	}
 	if time.Now().Sub(getRequestTime) >= sm.timeout {
-		reply.Err = ErrOpNotExecuted
-		SMPrintf(sm, "reply the client-%v request-%v (Query) timeout: logIndex-%v, Num-%v",
-			args.ClientID%10000, args.RequestID, commandIndex, args.Num)
-		return
+		result = ErrOpNotExecuted
+		SMPrintf(sm, "reply the client-%v request-%v (%v) timeout: logIndex-%v, "+paraName, paraData...)
+		return result
 	}
 
 	// check applied command
 	executedMsg := sm.executedMsg[commandIndex]
 	if executedMsg.CommandTerm != term {
-		reply.Err = ErrOpNotExecuted
-		SMPrintf(sm, "reply the client-%v request-%v (Query) ErrOpNotExecuted: logIndex-%v, Num-%v",
-			args.ClientID%10000, args.RequestID, commandIndex, args.Num)
-		return
+		result = ErrOpNotExecuted
+		SMPrintf(sm, "reply the client-%v request-%v (%v) ErrOpNotExecuted: logIndex-%v, "+paraName, paraData...)
+		return result
 	}
-	if args.Num < 0 && args.Num != -1 {
-		reply.Err = ErrWrongNum
-		return
+	result = OK
+	if command.Operation != QueryOp {
+		paraData = append(paraData, sm.getCurrentConfig())
+		SMPrintf(sm, "reply the client-%v request-%v (%v) success: logIndex-%v, "+paraName+", newConfig-%v",
+			paraData...)
 	}
-	reply.Err = OK
-	if args.Num == -1 || args.Num >= sm.getCurrentConfig().Num {
-		reply.Config = sm.getCurrentConfig()
-	} else {
-		reply.Config = sm.configs[args.Num]
-	}
-	SMPrintf(sm, "reply the client-%v request-%v (Query) success: logIndex-%v, Num-%v, config-%v",
-		args.ClientID%10000, args.RequestID, commandIndex, args.Num, reply.Config)
-	return
+	return result
 }
 
 func myTimer(mu *sync.Mutex, cond *sync.Cond, duration time.Duration) {
@@ -302,18 +185,11 @@ func (sm *ShardMaster) updateStateMachine() {
 		sm.mu.Lock()
 		// prevent duplicate command here!!!!
 		if sm.clientRequestID[command.ClientID] < command.RequestID {
-			switch command.Operation {
-			case JoinOp:
-				sm.ExecuteJoin(command, m.CommandIndex)
-			case LeaveOp:
-				sm.ExecuteLeave(command, m.CommandIndex)
-			case MoveOp:
-				sm.ExecuteMove(command, m.CommandIndex)
-			case QueryOp:
+			if command.Operation != QueryOp {
+				sm.updateConfig(command, m.CommandIndex)
+			} else {
 				SMPrintf(sm, "execute client-%v request-%v [Query], logIndex-%v",
 					command.ClientID%10000, command.RequestID, m.CommandIndex)
-			default:
-				SMPrintf(sm, "unknow command operation type, logIndex-%v", m.CommandIndex)
 			}
 			sm.clientRequestID[command.ClientID] = command.RequestID
 		}
@@ -331,60 +207,31 @@ func (sm *ShardMaster) updateStateMachine() {
 	}
 }
 
-func (sm *ShardMaster) ExecuteJoin(command Op, commandIndex int) {
-	SMPrintf(sm, "execute client-%v request-%v [Join], logIndex-%v",
-		command.ClientID%10000, command.RequestID, commandIndex)
-	newGroups := util.DeepCopyMap(sm.getCurrentConfig().Groups)
-	for gid, servers := range command.Servers {
-		if _, ok := sm.getCurrentConfig().Groups[gid]; !ok {
-			newGroups[gid] = servers
+func (sm *ShardMaster) updateConfig(command Op, commandIndex int) {
+	// already have lock
+	SMPrintf(sm, "execute client-%v request-%v [%v], logIndex-%v",
+		command.ClientID%10000, command.RequestID, command.Operation, commandIndex)
+	newConfig := sm.createNewConfig()
+	switch command.Operation {
+	case MoveOp:
+		newConfig.Shards[command.Shard] = command.GIDs[0]
+	case JoinOp:
+		for gid, servers := range command.Servers {
+			if _, ok := sm.getCurrentConfig().Groups[gid]; !ok {
+				newConfig.Groups[gid] = servers
+			}
 		}
-	}
-	newConfig := Config{
-		Num:    sm.getCurrentConfig().Num + 1,
-		Groups: newGroups,
-	}
-	sm.configs = append(sm.configs, newConfig)
-	sm.divideShard()
-}
-
-func (sm *ShardMaster) ExecuteLeave(command Op, commandIndex int) {
-	SMPrintf(sm, "execute client-%v request-%v [Leave], logIndex-%v",
-		command.ClientID%10000, command.RequestID, commandIndex)
-	newGroups := util.DeepCopyMap(sm.getCurrentConfig().Groups)
-	for _, gid := range command.GIDs {
-		delete(newGroups, gid)
-	}
-	newConfig := Config{
-		Num:    sm.getCurrentConfig().Num + 1,
-		Groups: newGroups,
-	}
-	sm.configs = append(sm.configs, newConfig)
-	sm.divideShard()
-}
-
-func (sm *ShardMaster) divideShard() {
-	gids := make([]int, 0)
-	for gid := range sm.getCurrentConfig().Groups {
-		gids = append(gids, gid)
-	}
-	sort.Ints(gids)
-	j := 0
-	num := sm.getCurrentConfig().Num
-	for i := 0; i < len(sm.configs[num].Shards); i++ {
-		if len(gids) > 0 {
-			sm.configs[num].Shards[i] = gids[j]
-			j = (j + 1) % len(gids)
-		} else {
-			sm.configs[num].Shards[i] = 0
+		sm.rebalance(command)
+	case LeaveOp:
+		for _, gid := range command.GIDs {
+			delete(newConfig.Groups, gid)
 		}
+		sm.rebalance(command)
 	}
+
 }
 
-func (sm *ShardMaster) ExecuteMove(command Op, commandIndex int) {
-	SMPrintf(sm, "execute client-%v request-%v [Move], logIndex-%v",
-		command.ClientID%10000, command.RequestID, commandIndex)
-	// copy config
+func (sm *ShardMaster) createNewConfig() *Config {
 	newGroups := util.DeepCopyMap(sm.getCurrentConfig().Groups)
 	newConfig := Config{
 		Num:    sm.getCurrentConfig().Num + 1,
@@ -392,9 +239,84 @@ func (sm *ShardMaster) ExecuteMove(command Op, commandIndex int) {
 		Groups: newGroups,
 	}
 	sm.configs = append(sm.configs, newConfig)
-	// modify new config
-	num := sm.getCurrentConfig().Num
-	sm.configs[num].Shards[command.Shard] = command.GIDs[0]
+	return sm.getCurrentConfig()
+}
+
+func (sm *ShardMaster) rebalance(command Op) {
+	cfg := sm.getCurrentConfig()
+	oldCfg := &sm.configs[cfg.Num-1]
+	groupShardMap := getGroupShardMap(cfg)
+	switch command.Operation {
+	case JoinOp:
+		avg := NShards / len(cfg.Groups)
+		remain := NShards % len(cfg.Groups)
+		for gid, _ := range command.Servers {
+			shardNum := avg
+			// there are (remain - len(oldCfg.Groups) groups getting avg+1 shard
+			if remain > len(oldCfg.Groups) {
+				shardNum++
+				remain--
+			}
+			for i := 0; i < shardNum; i++ {
+				maxGid := sm.getMaxShardsGroup(groupShardMap)
+				cfg.Shards[groupShardMap[maxGid][0]] = gid
+				groupShardMap[maxGid] = groupShardMap[maxGid][1:]
+			}
+		}
+	case LeaveOp:
+		if len(cfg.Groups) == 0 {
+			cfg.Shards = [NShards]int{}
+		} else {
+			for _, gid := range command.GIDs {
+				shardArray := groupShardMap[gid]
+				delete(groupShardMap, gid)
+				for _, shardID := range shardArray {
+					minGid := sm.getMinShardsGroup(groupShardMap)
+					cfg.Shards[shardID] = minGid
+					groupShardMap[minGid] = append(groupShardMap[minGid], shardID)
+				}
+			}
+		}
+	}
+}
+
+func getGroupShardMap(cfg *Config) map[int][]int {
+	result := make(map[int][]int)
+	for gid, _ := range cfg.Groups {
+		result[gid] = []int{}
+	}
+	for i := 0; i < len(cfg.Shards); i++ {
+		if _, ok := result[cfg.Shards[i]]; ok {
+			result[cfg.Shards[i]] = append(result[cfg.Shards[i]], i)
+		} else {
+			result[cfg.Shards[i]] = []int{i}
+		}
+	}
+	return result
+}
+
+func (sm *ShardMaster) getMaxShardsGroup(groupShardMap map[int][]int) int {
+	max := -1
+	result := -1
+	for gid, shards := range groupShardMap {
+		if len(shards) > max || (len(shards) == max && result < gid) {
+			max = len(shards)
+			result = gid
+		}
+	}
+	return result
+}
+
+func (sm *ShardMaster) getMinShardsGroup(groupShardMap map[int][]int) int {
+	min := math.MaxInt32
+	result := -1
+	for gid, shards := range groupShardMap {
+		if len(shards) < min || (len(shards) == min && result < gid) {
+			min = len(shards)
+			result = gid
+		}
+	}
+	return result
 }
 
 //

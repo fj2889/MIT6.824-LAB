@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"sync"
-	"util"
 )
 
 type myStruct struct {
@@ -40,11 +39,7 @@ func main() {
 	//if err != nil {
 	//	fmt.Println(err)
 	//}
-	x := map[string][]string{
-		"a": []string{"a", "b", "c"},
-		"b": []string{"b", "c", "d"},
-	}
-	y := util.DeepCopy(x)
-	x["a"] = []string{"a"}
-	fmt.Println(x, y)
+	x := [2]int{1, 2}
+	y := [2]int{1, 2}
+	fmt.Println(x == y)
 }

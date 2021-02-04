@@ -23,13 +23,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09e7cf81-81b8-458c-a61d-216e9b54ba39" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/util/util.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shardkv/loop_to_test_shardkv.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/test.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shardmaster/loop_to_test_sm.sh" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardmaster/loop_to_test_sm.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shardkv/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shardkv/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/common.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shardkv/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shardmaster/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardmaster/common.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardmaster/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardmaster/server.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardmaster/shardmaster_out" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardmaster/shardmaster_out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shardmaster/test_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardmaster/test_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +71,7 @@
     <property name="configurable.Project.GOPATH.is.expanded" value="true" />
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/shardmaster" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/shardkv" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -83,6 +85,7 @@
       <recent name="$PROJECT_DIR$/src/Util" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/shardkv" />
       <recent name="$PROJECT_DIR$/src/shardmaster" />
       <recent name="$PROJECT_DIR$/src/kvraft" />
     </key>
@@ -161,32 +164,32 @@
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="321" y="23" width="1071" height="798" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1440.900@0.0.1440.900" timestamp="1608800648569" />
-    <state x="446" y="259" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1612098596370">
+    <state x="446" y="259" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1612260277722">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state x="446" y="259" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1440.900@0.0.1440.900" timestamp="1612098596370" />
-    <state width="1398" height="245" key="GridCell.Tab.0.bottom" timestamp="1612235238425">
+    <state x="446" y="259" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1440.900@0.0.1440.900" timestamp="1612260277722" />
+    <state width="1398" height="245" key="GridCell.Tab.0.bottom" timestamp="1612325160809">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state width="1398" height="245" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1612235238425" />
+    <state width="1398" height="245" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1612325160809" />
     <state width="1398" height="245" key="GridCell.Tab.0.bottom/0.23.1440.798@0.23.1440.798" timestamp="1610294840315" />
     <state width="1398" height="245" key="GridCell.Tab.0.bottom/0.25.1440.791@0.25.1440.791" timestamp="1611732804952" />
-    <state width="1398" height="245" key="GridCell.Tab.0.center" timestamp="1612235238424">
+    <state width="1398" height="245" key="GridCell.Tab.0.center" timestamp="1612325160808">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state width="1398" height="245" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1612235238424" />
+    <state width="1398" height="245" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1612325160808" />
     <state width="1398" height="245" key="GridCell.Tab.0.center/0.23.1440.798@0.23.1440.798" timestamp="1610294840314" />
     <state width="1398" height="245" key="GridCell.Tab.0.center/0.25.1440.791@0.25.1440.791" timestamp="1611732804950" />
-    <state width="1398" height="245" key="GridCell.Tab.0.left" timestamp="1612235238423">
+    <state width="1398" height="245" key="GridCell.Tab.0.left" timestamp="1612325160807">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state width="1398" height="245" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1612235238423" />
+    <state width="1398" height="245" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1612325160807" />
     <state width="1398" height="245" key="GridCell.Tab.0.left/0.23.1440.798@0.23.1440.798" timestamp="1610294840313" />
     <state width="1398" height="245" key="GridCell.Tab.0.left/0.25.1440.791@0.25.1440.791" timestamp="1611732804948" />
-    <state width="1398" height="245" key="GridCell.Tab.0.right" timestamp="1612235238424">
+    <state width="1398" height="245" key="GridCell.Tab.0.right" timestamp="1612325160809">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state width="1398" height="245" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1612235238424" />
+    <state width="1398" height="245" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1612325160809" />
     <state width="1398" height="245" key="GridCell.Tab.0.right/0.23.1440.798@0.23.1440.798" timestamp="1610294840315" />
     <state width="1398" height="245" key="GridCell.Tab.0.right/0.25.1440.791@0.25.1440.791" timestamp="1611732804951" />
     <state width="1398" height="304" key="GridCell.Tab.1.bottom" timestamp="1610294840310">
@@ -225,10 +228,10 @@
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="421" y="205" width="598" height="490" key="find.popup/0.0.1440.900@0.0.1440.900" timestamp="1612082173050" />
-    <state width="600" height="390" key="javadoc.popup" timestamp="1612099119547">
+    <state width="600" height="390" key="javadoc.popup" timestamp="1612256962488">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state width="600" height="390" key="javadoc.popup/0.0.1440.900@0.0.1440.900" timestamp="1612099119547" />
+    <state width="600" height="390" key="javadoc.popup/0.0.1440.900@0.0.1440.900" timestamp="1612256962488" />
     <state x="385" y="196" width="670" height="676" key="search.everywhere.popup" timestamp="1612099909912">
       <screen x="0" y="0" width="1440" height="900" />
     </state>

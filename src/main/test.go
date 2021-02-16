@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"sync"
 )
 
 type myStruct struct {
 	Key   string
 	Value string
+	x     map[string]string
 }
 
 func concurrentTest(index *int, mu *sync.Mutex) {
@@ -39,7 +39,11 @@ func main() {
 	//if err != nil {
 	//	fmt.Println(err)
 	//}
-	x := "123"
-	x += "456"
-	fmt.Println(x)
+	x := make(map[string]myStruct)
+	x["a"] = myStruct{
+		Key: "x",
+		//x:   make(map[string]string),
+	}
+	x["a"].x["a"] += "123"
+	//fmt.Println(x)
 }

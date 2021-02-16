@@ -30,6 +30,7 @@ const (
 	PutOp         = "Put"
 	AppendOp      = "Append"
 	ReconfigureOp = "Reconfigure"
+	DeleteShard   = "DeleteShard"
 )
 
 // Put or Append
@@ -67,9 +68,19 @@ type PullShardArgs struct {
 }
 
 type PullShardReply struct {
+	Err
 	ConfigNum        int
 	ShardData        map[string]string
 	ClientRequestSeq map[int64]int32
+}
+
+type TellReadyArgs struct {
+	ConfigNum int
+	ShardNum  int
+}
+
+type TellReadyReply struct {
+	Err
 }
 
 const Debug = 0

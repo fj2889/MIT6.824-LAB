@@ -1,6 +1,5 @@
 package shardkv
 
-// import "../shardmaster"
 import (
 	"../labrpc"
 	"../shardmaster"
@@ -22,6 +21,7 @@ type Op struct {
 	Value     string
 	Config    shardmaster.Config
 	Shards    map[int]Shard
+	ShardNum  int
 	Operation string
 	ClientID  int64
 	RequestID int32
@@ -36,18 +36,19 @@ type ShardKV struct {
 	make_end func(string) *labrpc.ClientEnd
 	gid      int
 	masters  []*labrpc.ClientEnd
-	config   shardmaster.Config
 	mck      *shardmaster.Clerk
 
 	maxraftstate int             // snapshot if log grows this big
 	persister    *raft.Persister // used to read snapshot and raft state size, do not be used to persist
 
 	// Your definitions here.
-	startTime         time.Time
-	timeout           time.Duration
-	lastConnectServer map[int]int
+	startTime   time.Time
+	timeout     time.Duration
+	groupLeader map[int]int
 
+	// state machine
 	stateMachine map[int]Shard
+	config       shardmaster.Config
 
 	executedMsg       map[int]raft.ApplyMsg
 	lastExecutedIndex int
@@ -117,6 +118,8 @@ func (kv *ShardKV) templateHandler(command Op) Err {
 	}
 	if command.Operation != GetOp {
 		// check duplicate
+		KVPrintf(kv, "testprint in templateHandler: client-%v request-%v (%v) key-%v, value-%v", paraData1...)
+		KVPrintf(kv, "testprint in templateHandler: config-%v, stateMachine-%v", kv.config, kv.stateMachine)
 		if currentRequestID, ok := kv.getShardByKey(command.Key).ClientRequestSeq[command.ClientID]; ok &&
 			currentRequestID >= command.RequestID {
 			result = ErrDuplicateRequest
@@ -185,6 +188,25 @@ func (kv *ShardKV) PullShard(args *PullShardArgs, reply *PullShardReply) {
 	reply.ClientRequestSeq = kv.stateMachine[args.ShardNum].ClientRequestSeq
 }
 
+func (kv *ShardKV) TellReady(args *TellReadyArgs, reply *TellReadyReply) {
+	command := Op{
+		ShardNum:  args.ShardNum,
+		Operation: DeleteShard,
+	}
+	commandIndex, _, isLeader := kv.rf.Start(command)
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+	kv.mu.Lock()
+	defer kv.mu.Unlock()
+	if args.ConfigNum < kv.config.Num && kv.config.Shards[args.ShardNum] != kv.gid {
+		reply.Err = OK
+		KVPrintf(kv, "put delete shard operation into raft log: logIndex-%v, shardNum-%v",
+			commandIndex, args.ShardNum)
+	}
+}
+
 func myTimer(mu *sync.Mutex, cond *sync.Cond, duration time.Duration) {
 	go func() {
 		time.Sleep(duration)
@@ -221,36 +243,41 @@ func (kv *ShardKV) updateStateMachine() {
 		}
 		command := m.Command.(Op)
 		kv.mu.Lock()
-		// prevent duplicate command here!!!! prevent concurrent reconfig and request
-		if command.Operation != ReconfigureOp {
-			if kv.config.Shards[key2shard(command.Key)] == kv.gid &&
-				kv.getShardByKey(command.Key).ClientRequestSeq[command.ClientID] < command.RequestID {
-				switch command.Operation {
-				case GetOp:
-					KVPrintf(kv, "execute client-%v request-%v [GET], logIndex-%v",
-						command.ClientID%10000, command.RequestID, m.CommandIndex)
-				case PutOp:
-					kv.stateMachine[key2shard(command.Key)].Data[command.Key] = command.Value
-					KVPrintf(kv, "execute client-%v request-%v [PUT], logIndex-%v, key-%v, value-%v",
-						command.ClientID%10000, command.RequestID, m.CommandIndex, command.Key, command.Value)
-				case AppendOp:
-					kv.stateMachine[key2shard(command.Key)].Data[command.Key] += command.Value
-					KVPrintf(kv, "execute client-%v request-%v [APPEND], logIndex-%v, key-%v, value-%v, new_value-%v",
-						command.ClientID%10000, command.RequestID, m.CommandIndex, command.Key, command.Value, kv.stateMachine[key2shard(command.Key)].Data[command.Key])
-				default:
-					KVPrintf(kv, "unknow command operation type, logIndex-%v", m.CommandIndex)
-				}
-				kv.stateMachine[key2shard(command.Key)].ClientRequestSeq[command.ClientID] = command.RequestID
+		if command.Operation == DeleteShard {
+			// check!!!
+			if kv.config.Shards[command.ShardNum] != kv.gid {
+				KVPrintf(kv, "execute [DeleteShard], logIndex-%v, shardNum-%v",
+					m.CommandIndex, command.ShardNum)
+				delete(kv.stateMachine, command.ShardNum)
 			}
-		} else {
+		} else if command.Operation == ReconfigureOp {
 			// reconfigure
 			if command.Config.Num > kv.config.Num {
+				go kv.computeDeleteShards(kv.config, command.Config)
 				kv.config = deepCopyConfig(command.Config)
 				for k, v := range command.Shards {
 					kv.stateMachine[k] = deepCopyShard(v)
 				}
 				KVPrintf(kv, "execute [reconfigure], logIndex-%v, new_config-%v",
 					m.CommandIndex, kv.config)
+			}
+		} else {
+			// prevent duplicate command here!!!! prevent concurrent reconfig and request
+			if kv.config.Shards[key2shard(command.Key)] == kv.gid &&
+				kv.getShardByKey(command.Key).ClientRequestSeq[command.ClientID] < command.RequestID {
+				switch command.Operation {
+				case GetOp:
+				case PutOp:
+					kv.stateMachine[key2shard(command.Key)].Data[command.Key] = command.Value
+				case AppendOp:
+					kv.stateMachine[key2shard(command.Key)].Data[command.Key] += command.Value
+				default:
+					KVPrintf(kv, "unknow command operation type, logIndex-%v", m.CommandIndex)
+					panic("unknow command operation type")
+				}
+				KVPrintf(kv, "execute client-%v request-%v [%v], logIndex-%v, key-%v, value-%v, new_value-%v",
+					command.ClientID%10000, command.RequestID, command.Operation, m.CommandIndex, command.Key, command.Value, kv.stateMachine[key2shard(command.Key)].Data[command.Key])
+				kv.stateMachine[key2shard(command.Key)].ClientRequestSeq[command.ClientID] = command.RequestID
 			}
 		}
 		// wake up client-facing RPC handler
@@ -320,19 +347,74 @@ func getShardsByGID(gid int, cfg shardmaster.Config) map[int]int {
 	return result
 }
 
+func (kv *ShardKV) computeDeleteShards(oldConfig shardmaster.Config, newConfig shardmaster.Config) {
+	if _, isLeader := kv.rf.GetState(); !isLeader {
+		return
+	}
+	kv.mu.Lock()
+	incomeShards := kv.getIncomeShardsWithLock(oldConfig, newConfig)
+	kv.mu.Unlock()
+	for _, shardNum := range incomeShards {
+		kv.sendReadySignal(oldConfig, shardNum)
+	}
+}
+
+func (kv *ShardKV) sendReadySignal(oldConfig shardmaster.Config, shardNum int) {
+	targetGroup := oldConfig.Shards[shardNum]
+	servers, _ := oldConfig.Groups[targetGroup]
+	args := TellReadyArgs{
+		ShardNum:  shardNum,
+		ConfigNum: oldConfig.Num,
+	}
+	reply := TellReadyReply{}
+	kv.mu.Lock()
+Loop:
+	for {
+		if _, ok := kv.groupLeader[targetGroup]; !ok {
+			kv.groupLeader[targetGroup] = 0
+		}
+		for i := 0; i < len(servers); i++ {
+			srv := kv.make_end(servers[kv.groupLeader[targetGroup]])
+			KVPrintf(kv, "send TellReady RPC to server-%v-%v, shardNum-%v, oldCfgNum-%v", targetGroup,
+				kv.groupLeader[targetGroup], shardNum, oldConfig.Num)
+			kv.mu.Unlock()
+			ok := srv.Call("ShardKV.TellReady", &args, &reply)
+			kv.mu.Lock()
+			if !ok || reply.Err == ErrWrongLeader {
+				kv.groupLeader[targetGroup] = (kv.groupLeader[targetGroup] + 1) % len(servers)
+				continue
+			}
+			break Loop
+		}
+		kv.mu.Unlock()
+		time.Sleep(50 * time.Millisecond)
+		kv.mu.Lock()
+	}
+	kv.mu.Unlock()
+}
+
+func (kv *ShardKV) getIncomeShardsWithLock(oldConfig shardmaster.Config, newConfig shardmaster.Config) []int {
+	// already get lock
+	var incomeShard []int
+	oldShards := getShardsByGID(kv.gid, oldConfig)
+	newShards := getShardsByGID(kv.gid, newConfig)
+	if len(oldShards) >= len(newShards) {
+		return incomeShard
+	}
+	for shardNum, _ := range newShards {
+		if _, ok := oldShards[shardNum]; ok {
+			continue
+		}
+		incomeShard = append(incomeShard, shardNum)
+	}
+	return incomeShard
+}
+
 func (kv *ShardKV) requestShardData(oldConfig shardmaster.Config, newConfig shardmaster.Config) map[int]Shard {
 	result := make(map[int]Shard)
 	kv.mu.Lock()
-	currentShards := getShardsByGID(kv.gid, oldConfig)
-	newShards := getShardsByGID(kv.gid, newConfig)
-	if len(currentShards) >= len(newShards) {
-		kv.mu.Unlock()
-		return result
-	}
-	for shardNum, _ := range newShards {
-		if _, ok := currentShards[shardNum]; ok {
-			continue
-		}
+	incomeShards := kv.getIncomeShardsWithLock(oldConfig, newConfig)
+	for _, shardNum := range incomeShards {
 		targetGroup := oldConfig.Shards[shardNum]
 		if targetGroup == 0 {
 			result[shardNum] = Shard{
@@ -354,18 +436,18 @@ func (kv *ShardKV) requestShardData(oldConfig shardmaster.Config, newConfig shar
 		}
 	Loop:
 		for {
-			if _, ok := kv.lastConnectServer[targetGroup]; !ok {
-				kv.lastConnectServer[targetGroup] = 0
+			if _, ok := kv.groupLeader[targetGroup]; !ok {
+				kv.groupLeader[targetGroup] = 0
 			}
 			for i := 0; i < len(servers); i++ {
-				srv := kv.make_end(servers[kv.lastConnectServer[targetGroup]])
+				srv := kv.make_end(servers[kv.groupLeader[targetGroup]])
 				KVPrintf(kv, "send PullShard request to server-%v-%v, shardNum-%v, configNum-%v",
-					targetGroup, i, shardNum, newConfig.Num)
+					targetGroup, kv.groupLeader[targetGroup], shardNum, oldConfig.Num)
 				kv.mu.Unlock()
 				ok := srv.Call("ShardKV.PullShard", &args, &reply)
 				kv.mu.Lock()
 				if !ok || reply.ConfigNum <= oldConfig.Num {
-					kv.lastConnectServer[targetGroup] = (kv.lastConnectServer[targetGroup] + 1) % len(servers)
+					kv.groupLeader[targetGroup] = (kv.groupLeader[targetGroup] + 1) % len(servers)
 					continue
 				}
 				result[shardNum] = Shard{
@@ -392,7 +474,7 @@ func (kv *ShardKV) checkConfigUpdate() {
 			kv.mu.Unlock()
 			newConfig := kv.mck.Query(newConfigNum)
 			kv.mu.Lock()
-			if kv.config.Num != newConfig.Num {
+			if kv.config.Num < newConfig.Num {
 				KVPrintf(kv, "find new configuration, old config = %v, new config = %v", kv.config, newConfig)
 				oldConfig := deepCopyConfig(kv.config)
 				kv.mu.Unlock()
@@ -414,7 +496,7 @@ func (kv *ShardKV) checkConfigUpdate() {
 			break
 		}
 		kv.mu.Unlock()
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 	}
 }
 
@@ -468,7 +550,7 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 
 	kv.startTime = time.Now()
 	kv.timeout = 500 * time.Millisecond // 500ms for timeout
-	kv.lastConnectServer = make(map[int]int)
+	kv.groupLeader = make(map[int]int)
 	kv.stateMachine = make(map[int]Shard)
 	for i := 0; i < len(kv.config.Shards); i++ {
 		kv.stateMachine[i] = Shard{

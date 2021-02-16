@@ -24,15 +24,9 @@
   <component name="ChangeListManager">
     <list default="true" id="09e7cf81-81b8-458c-a61d-216e9b54ba39" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/test.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardkv/TestAll_out" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/TestAll_out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shardkv/TestMissChange_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shardkv/TestSnapshot_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shardkv/TestUnreliable3_out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shardkv/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/common.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardkv/loop_to_test_shardkv.sh" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/loop_to_test_shardkv.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardkv/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shardkv/test_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/test_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

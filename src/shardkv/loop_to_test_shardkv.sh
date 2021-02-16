@@ -14,9 +14,9 @@ fi
 for ((i = 1; i <= $2; i++)); do
     start=$(date +%s)
     if [ "$1" = "TestAll" ]; then
-      timeout --foreground 200s go test -race > TestAll_out
+      timeout --foreground 250s go test -race > TestAll_out
     else
-      timeout --foreground 200s go test -race -run $1 > $1_out
+      timeout --foreground 250s go test -race -run $1 > $1_out
     fi
 
     if [ $? -ne 0 ]; then

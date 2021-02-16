@@ -496,7 +496,7 @@ func (kv *ShardKV) checkConfigUpdate() {
 			break
 		}
 		kv.mu.Unlock()
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(50 * time.Millisecond)
 	}
 }
 

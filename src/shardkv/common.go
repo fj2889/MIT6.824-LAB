@@ -31,6 +31,7 @@ const (
 	AppendOp      = "Append"
 	ReconfigureOp = "Reconfigure"
 	DeleteShard   = "DeleteShard"
+	UpdateShard   = "UpdateShard"
 )
 
 // Put or Append
@@ -83,7 +84,7 @@ type TellReadyReply struct {
 	Err
 }
 
-const Debug = 0
+const Debug = 1
 
 func KVPrintf(kv *ShardKV, format string, a ...interface{}) {
 	if Debug > 0 {

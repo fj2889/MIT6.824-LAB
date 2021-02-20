@@ -347,11 +347,13 @@ func TestConcurrent1(t *testing.T) {
 
 	ck := cfg.makeClient()
 
+	//fmt.Printf("TestConcurrent1: join-100\n")
 	cfg.join(0)
 
 	n := 10
 	ka := make([]string, n)
 	va := make([]string, n)
+	//fmt.Printf("TestConcurrent1: put %v times\n", n)
 	for i := 0; i < n; i++ {
 		ka[i] = strconv.Itoa(i) // ensure multiple shards
 		va[i] = randstring(5)
@@ -372,34 +374,48 @@ func TestConcurrent1(t *testing.T) {
 		}
 	}
 
+	//fmt.Printf("TestConcurrent1: concurrent Append starts\n")
 	for i := 0; i < n; i++ {
 		go ff(i)
 	}
 
 	time.Sleep(150 * time.Millisecond)
+	//fmt.Printf("TestConcurrent1: join-101\n")
 	cfg.join(1)
 	time.Sleep(500 * time.Millisecond)
+	//fmt.Printf("TestConcurrent1: join-102\n")
 	cfg.join(2)
 	time.Sleep(500 * time.Millisecond)
+	//fmt.Printf("TestConcurrent1: leave-100\n")
 	cfg.leave(0)
 
+	//fmt.Printf("TestConcurrent1: shutdownGroup-100\n")
 	cfg.ShutdownGroup(0)
 	time.Sleep(100 * time.Millisecond)
+	//fmt.Printf("TestConcurrent1: shutdownGroup-101\n")
 	cfg.ShutdownGroup(1)
 	time.Sleep(100 * time.Millisecond)
+	//fmt.Printf("TestConcurrent1: shutdownGroup-102\n")
 	cfg.ShutdownGroup(2)
 
+	//fmt.Printf("TestConcurrent1: leave-102\n")
 	cfg.leave(2)
 
 	time.Sleep(100 * time.Millisecond)
+	//fmt.Printf("TestConcurrent1: startGroup-100\n")
 	cfg.StartGroup(0)
+	//fmt.Printf("TestConcurrent1: startGroup-101\n")
 	cfg.StartGroup(1)
+	//fmt.Printf("TestConcurrent1: startGroup-102\n")
 	cfg.StartGroup(2)
 
 	time.Sleep(100 * time.Millisecond)
+	//fmt.Printf("TestConcurrent1: join-100\n")
 	cfg.join(0)
+	//fmt.Printf("TestConcurrent1: leave-101\n")
 	cfg.leave(1)
 	time.Sleep(500 * time.Millisecond)
+	//fmt.Printf("TestConcurrent1: join-101\n")
 	cfg.join(1)
 
 	time.Sleep(1 * time.Second)
@@ -409,6 +425,7 @@ func TestConcurrent1(t *testing.T) {
 		<-ch
 	}
 
+	//fmt.Printf("TestConcurrent1: check %v times\n", n)
 	for i := 0; i < n; i++ {
 		check(t, ck, ka[i], va[i])
 	}
@@ -627,11 +644,13 @@ func TestUnreliable3(t *testing.T) {
 
 	ck := cfg.makeClient()
 
+	fmt.Printf("TestUnreliable3: join-100\n")
 	cfg.join(0)
 
 	n := 10
 	ka := make([]string, n)
 	va := make([]string, n)
+	fmt.Printf("TestUnreliable3: put %v times\n", n)
 	for i := 0; i < n; i++ {
 		ka[i] = strconv.Itoa(i) // ensure multiple shards
 		va[i] = randstring(5)
@@ -680,15 +699,21 @@ func TestUnreliable3(t *testing.T) {
 	}
 
 	time.Sleep(150 * time.Millisecond)
+	fmt.Printf("TestUnreliable3: join-101\n")
 	cfg.join(1)
 	time.Sleep(500 * time.Millisecond)
+	fmt.Printf("TestUnreliable3: join-102\n")
 	cfg.join(2)
 	time.Sleep(500 * time.Millisecond)
+	fmt.Printf("TestUnreliable3: leave-100\n")
 	cfg.leave(0)
 	time.Sleep(500 * time.Millisecond)
+	fmt.Printf("TestUnreliable3: leave-101\n")
 	cfg.leave(1)
 	time.Sleep(500 * time.Millisecond)
+	fmt.Printf("TestUnreliable3: join-101\n")
 	cfg.join(1)
+	fmt.Printf("TestUnreliable3: join-100\n")
 	cfg.join(0)
 
 	time.Sleep(2 * time.Second)
@@ -813,11 +838,13 @@ func TestChallenge1Concurrent(t *testing.T) {
 
 	ck := cfg.makeClient()
 
+	//fmt.Printf("TestChallenge1Concurrent: join-100\n")
 	cfg.join(0)
 
 	n := 10
 	ka := make([]string, n)
 	va := make([]string, n)
+	//fmt.Printf("TestChallenge1Concurrent: put %v times\n", n)
 	for i := 0; i < n; i++ {
 		ka[i] = strconv.Itoa(i)
 		va[i] = randstring(1)
@@ -836,6 +863,7 @@ func TestChallenge1Concurrent(t *testing.T) {
 		}
 	}
 
+	//fmt.Printf("TestChallenge1Concurrent: concurrent Append starts\n")
 	for i := 0; i < n; i++ {
 		ck1 := cfg.makeClient()
 		go ff(i, ck1)
@@ -843,18 +871,28 @@ func TestChallenge1Concurrent(t *testing.T) {
 
 	t0 := time.Now()
 	for time.Since(t0) < 12*time.Second {
+		//fmt.Printf("TestChallenge1Concurrent: join-102\n")
 		cfg.join(2)
+		//fmt.Printf("TestChallenge1Concurrent: join-101\n")
 		cfg.join(1)
 		time.Sleep(time.Duration(rand.Int()%900) * time.Millisecond)
+		//fmt.Printf("TestChallenge1Concurrent: shutdownGroup-100\n")
 		cfg.ShutdownGroup(0)
+		//fmt.Printf("TestChallenge1Concurrent: shutdownGroup-101\n")
 		cfg.ShutdownGroup(1)
+		//fmt.Printf("TestChallenge1Concurrent: shutdownGroup-102\n")
 		cfg.ShutdownGroup(2)
+		//fmt.Printf("TestChallenge1Concurrent: startGroup-100\n")
 		cfg.StartGroup(0)
+		//fmt.Printf("TestChallenge1Concurrent: startGroup-101\n")
 		cfg.StartGroup(1)
+		//fmt.Printf("TestChallenge1Concurrent: startGroup-102\n")
 		cfg.StartGroup(2)
 
 		time.Sleep(time.Duration(rand.Int()%900) * time.Millisecond)
+		//fmt.Printf("TestChallenge1Concurrent: leave-101\n")
 		cfg.leave(1)
+		//fmt.Printf("TestChallenge1Concurrent: leave-102\n")
 		cfg.leave(2)
 		time.Sleep(time.Duration(rand.Int()%900) * time.Millisecond)
 	}
@@ -948,58 +986,58 @@ func TestChallenge2Unaffected(t *testing.T) {
 // have been received as a part of a config migration when the entire migration
 // has not yet completed.
 //
-//func TestChallenge2Partial(t *testing.T) {
-//	fmt.Printf("Test: partial migration shard access (challenge 2) ...\n")
-//
-//	cfg := make_config(t, 3, true, 100)
-//	defer cfg.cleanup()
-//
-//	ck := cfg.makeClient()
-//
-//	// JOIN 100 + 101 + 102
-//	cfg.joinm([]int{0, 1, 2})
-//
-//	// Give the implementation some time to reconfigure
-//	<-time.After(1 * time.Second)
-//
-//	// Do a bunch of puts to keys in all shards
-//	n := 10
-//	ka := make([]string, n)
-//	va := make([]string, n)
-//	for i := 0; i < n; i++ {
-//		ka[i] = strconv.Itoa(i) // ensure multiple shards
-//		va[i] = "100"
-//		ck.Put(ka[i], va[i])
-//	}
-//
-//	// QUERY to find shards owned by 102
-//	c := cfg.mck.Query(-1)
-//	owned := make(map[int]bool, n)
-//	for s, gid := range c.Shards {
-//		owned[s] = gid == cfg.groups[2].gid
-//	}
-//
-//	// KILL 100
-//	cfg.ShutdownGroup(0)
-//
-//	// LEAVE 100 + 102
-//	// 101 can get old shards from 102, but not from 100. 101 should start
-//	// serving shards that used to belong to 102 as soon as possible
-//	cfg.leavem([]int{0, 2})
-//
-//	// Give the implementation some time to start reconfiguration
-//	// And to migrate 102 -> 101
-//	<-time.After(1 * time.Second)
-//
-//	// And finally: check that gets/puts for 101-owned keys now complete
-//	for i := 0; i < n; i++ {
-//		shard := key2shard(ka[i])
-//		if owned[shard] {
-//			check(t, ck, ka[i], va[i])
-//			ck.Put(ka[i], va[i]+"-2")
-//			check(t, ck, ka[i], va[i]+"-2")
-//		}
-//	}
-//
-//	fmt.Printf("  ... Passed\n")
-//}
+func TestChallenge2Partial(t *testing.T) {
+	fmt.Printf("Test: partial migration shard access (challenge 2) ...\n")
+
+	cfg := make_config(t, 3, true, 100)
+	defer cfg.cleanup()
+
+	ck := cfg.makeClient()
+
+	// JOIN 100 + 101 + 102
+	cfg.joinm([]int{0, 1, 2})
+
+	// Give the implementation some time to reconfigure
+	<-time.After(1 * time.Second)
+
+	// Do a bunch of puts to keys in all shards
+	n := 10
+	ka := make([]string, n)
+	va := make([]string, n)
+	for i := 0; i < n; i++ {
+		ka[i] = strconv.Itoa(i) // ensure multiple shards
+		va[i] = "100"
+		ck.Put(ka[i], va[i])
+	}
+
+	// QUERY to find shards owned by 102
+	c := cfg.mck.Query(-1)
+	owned := make(map[int]bool, n)
+	for s, gid := range c.Shards {
+		owned[s] = gid == cfg.groups[2].gid
+	}
+
+	// KILL 100
+	cfg.ShutdownGroup(0)
+
+	// LEAVE 100 + 102
+	// 101 can get old shards from 102, but not from 100. 101 should start
+	// serving shards that used to belong to 102 as soon as possible
+	cfg.leavem([]int{0, 2})
+
+	// Give the implementation some time to start reconfiguration
+	// And to migrate 102 -> 101
+	<-time.After(1 * time.Second)
+
+	// And finally: check that gets/puts for 101-owned keys now complete
+	for i := 0; i < n; i++ {
+		shard := key2shard(ka[i])
+		if owned[shard] {
+			check(t, ck, ka[i], va[i])
+			ck.Put(ka[i], va[i]+"-2")
+			check(t, ck, ka[i], va[i]+"-2")
+		}
+	}
+
+	fmt.Printf("  ... Passed\n")
+}

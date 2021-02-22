@@ -644,13 +644,13 @@ func TestUnreliable3(t *testing.T) {
 
 	ck := cfg.makeClient()
 
-	fmt.Printf("TestUnreliable3: join-100\n")
+	//fmt.Printf("TestUnreliable3: join-100\n")
 	cfg.join(0)
 
 	n := 10
 	ka := make([]string, n)
 	va := make([]string, n)
-	fmt.Printf("TestUnreliable3: put %v times\n", n)
+	//fmt.Printf("TestUnreliable3: put %v times\n", n)
 	for i := 0; i < n; i++ {
 		ka[i] = strconv.Itoa(i) // ensure multiple shards
 		va[i] = randstring(5)
@@ -699,21 +699,21 @@ func TestUnreliable3(t *testing.T) {
 	}
 
 	time.Sleep(150 * time.Millisecond)
-	fmt.Printf("TestUnreliable3: join-101\n")
+	//fmt.Printf("TestUnreliable3: join-101\n")
 	cfg.join(1)
 	time.Sleep(500 * time.Millisecond)
-	fmt.Printf("TestUnreliable3: join-102\n")
+	//fmt.Printf("TestUnreliable3: join-102\n")
 	cfg.join(2)
 	time.Sleep(500 * time.Millisecond)
-	fmt.Printf("TestUnreliable3: leave-100\n")
+	//fmt.Printf("TestUnreliable3: leave-100\n")
 	cfg.leave(0)
 	time.Sleep(500 * time.Millisecond)
-	fmt.Printf("TestUnreliable3: leave-101\n")
+	//fmt.Printf("TestUnreliable3: leave-101\n")
 	cfg.leave(1)
 	time.Sleep(500 * time.Millisecond)
-	fmt.Printf("TestUnreliable3: join-101\n")
+	//fmt.Printf("TestUnreliable3: join-101\n")
 	cfg.join(1)
-	fmt.Printf("TestUnreliable3: join-100\n")
+	//fmt.Printf("TestUnreliable3: join-100\n")
 	cfg.join(0)
 
 	time.Sleep(2 * time.Second)
@@ -832,7 +832,7 @@ func TestChallenge1Delete(t *testing.T) {
 
 func TestChallenge1Concurrent(t *testing.T) {
 	fmt.Printf("Test: concurrent configuration change and restart (challenge 1)...\n")
-
+	//
 	cfg := make_config(t, 3, false, 300)
 	defer cfg.cleanup()
 

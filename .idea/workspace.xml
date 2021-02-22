@@ -23,12 +23,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09e7cf81-81b8-458c-a61d-216e9b54ba39" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/shardkv/util.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shardkv/TestAll_out1" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/shardkv/TestUnreliable3_out2" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/test.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/raft/raft.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/raft/raft.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/raft/util.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/raft/util.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shardkv/TestAll_out" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/TestAll_out" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shardkv/TestAll_out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shardkv/TestUnreliable3_out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shardkv/TestUnreliable3_out1" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardkv/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/common.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardkv/loop_to_test_shardkv.sh" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/loop_to_test_shardkv.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shardkv/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/shardkv/server.go" afterDir="false" />

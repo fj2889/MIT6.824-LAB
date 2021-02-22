@@ -26,6 +26,7 @@ const (
 type Err string
 
 const (
+	BlankOp       = "Blank"
 	GetOp         = "Get"
 	PutOp         = "Put"
 	AppendOp      = "Append"
@@ -84,7 +85,7 @@ type TellReadyReply struct {
 	Err
 }
 
-const Debug = 1
+const Debug = 0
 
 func KVPrintf(kv *ShardKV, format string, a ...interface{}) {
 	if Debug > 0 {

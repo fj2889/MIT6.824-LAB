@@ -9,7 +9,7 @@ import (
 // Debugging
 const (
 	Debug     = 0
-	PrintRaft = 1
+	PrintRaft = 0
 )
 
 func Min(x int, y int) int {

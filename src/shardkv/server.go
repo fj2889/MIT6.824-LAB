@@ -54,6 +54,8 @@ type ShardKV struct {
 	executedMsg       map[int]raft.ApplyMsg
 	lastExecutedIndex int
 	waitApplyCond     *sync.Cond
+
+	MissShardTime int
 }
 
 type targetGroupInfo struct {
@@ -262,7 +264,8 @@ func (kv *ShardKV) updateStateMachine() {
 		}
 		command := m.Command.(Op)
 		kv.mu.Lock()
-		if command.Operation == UpdateShard {
+		if command.Operation == BlankOp {
+		} else if command.Operation == UpdateShard {
 			for shardNum, shardValue := range command.Shards {
 				if shardValue.ConfigNum > kv.stateMachine[shardNum].ConfigNum {
 					KVPrintf(kv, "execute [UpdateShard], logIndex-%v, shardNum-%v, shard-%v",
@@ -510,6 +513,7 @@ func (kv *ShardKV) requestShardData(shardNum int, g targetGroupInfo) map[int]Sha
 			kv.groupLeader[targetGroup] = (kv.groupLeader[targetGroup] + 1) % len(servers)
 			KVPrintf(kv, "do not get shardNum-%v from server-%v-%v, ok-%v, reply.ConfigNum-%v",
 				shardNum, targetGroup, kv.groupLeader[targetGroup], ok, reply.ConfigNum)
+			kv.MissShardTime++
 			continue
 		}
 		result[shardNum] = Shard{
@@ -518,6 +522,7 @@ func (kv *ShardKV) requestShardData(shardNum int, g targetGroupInfo) map[int]Sha
 			Data:             deepCopyShardData(reply.ShardData),
 			ClientRequestSeq: deepCopyClientRequestSeq(reply.ClientRequestSeq),
 		}
+		kv.MissShardTime = 0
 		KVPrintf(kv, "get shardNum-%v from server-%v-%v, newShardVersion-%v",
 			shardNum, targetGroup, kv.groupLeader[targetGroup], result[shardNum].ConfigNum)
 		break
@@ -529,6 +534,16 @@ func (kv *ShardKV) tryToPullShards() {
 	for {
 		if _, isLeader := kv.rf.GetState(); isLeader {
 			kv.mu.Lock()
+			if kv.MissShardTime > 20 {
+				kv.MissShardTime = 0
+				command := Op{
+					Operation: BlankOp,
+				}
+				kv.mu.Unlock()
+				commandIndex, _, _ := kv.rf.Start(command)
+				kv.mu.Lock()
+				KVPrintf(kv, "miss shard many times successively, put blank op into raft lonIndex-%v", commandIndex)
+			}
 			for shardNum, g := range kv.shardWaitToPull {
 				newShard := kv.requestShardData(shardNum, g)
 				if len(newShard) == 0 {
